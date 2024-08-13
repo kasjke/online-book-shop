@@ -2,11 +2,14 @@ package org.teamchallenge.bookshop.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.teamchallenge.bookshop.dto.OrderDeliveryDto;
 import org.teamchallenge.bookshop.dto.OrderDto;
+import org.teamchallenge.bookshop.enums.OrderStatus;
 import org.teamchallenge.bookshop.exception.BookNotFoundException;
 import org.teamchallenge.bookshop.exception.OrderIdNotFoundException;
 import org.teamchallenge.bookshop.mapper.OrderMapper;
 import org.teamchallenge.bookshop.model.Book;
+import org.teamchallenge.bookshop.model.Delivery;
 import org.teamchallenge.bookshop.model.Order;
 import org.teamchallenge.bookshop.repository.BookRepository;
 import org.teamchallenge.bookshop.repository.OrderRepository;
@@ -68,11 +71,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void createOrder(OrderDto orderDto) {
+    public String createOrder(OrderDeliveryDto orderDeliveryDto, String orderNumber) {
+        Delivery delivery = orderMapper.toDelivery(orderDeliveryDto);
         Order order = new Order();
-        order.setStatus(orderDto.status());
-        order.setStatusChange(LocalDateTime.now());
+        order.setOrderNumber(orderNumber);
+        order.setDelivery(delivery);
+        order.setStatus(OrderStatus.NEW);
+        order.setStatusChange(LocalDateTime.now().withSecond(0).withNano(0));
+        orderRepository.save(order);
 
-        getOrderDto(orderDto, order);
+        return orderNumber;
     }
+
+
+
+
 }

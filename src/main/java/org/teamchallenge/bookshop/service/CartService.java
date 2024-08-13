@@ -2,28 +2,26 @@ package org.teamchallenge.bookshop.service;
 
 import jakarta.transaction.Transactional;
 import org.teamchallenge.bookshop.dto.CartDto;
+import org.teamchallenge.bookshop.dto.CartItemDto;
 import org.teamchallenge.bookshop.enums.Discount;
-import org.teamchallenge.bookshop.model.Cart;
 
 import java.math.BigDecimal;
-import java.util.UUID;
+import java.util.List;
 
 public interface CartService {
-    Cart createCart();
+    List<CartItemDto> getCartItems();
 
-    CartDto getCartById(UUID id);
+    CartDto getCartById();
 
-    UUID getCartIdByUserEmail(String email);
-
-    CartDto addBookToCart(UUID cartId, long bookId);
+    CartDto addBookToCart(long bookId);
 
     @Transactional
-    CartDto updateQuantity(UUID id, long bookId, int quantity);
+    CartDto updateQuantity(long bookId, int quantity);
 
     @Transactional
-    CartDto deleteBookFromCart(UUID id, long bookId);
+    CartDto deleteBookFromCart(long bookId);
 
-    BigDecimal calculateTotalPrice(UUID cartId);
+    BigDecimal calculateTotalPrice();
 
-    void applyDiscount(UUID id, Discount discount);
+    void applyDiscount(Discount discount);
 }

@@ -31,6 +31,10 @@ public class Order {
     private Map<Book, Integer> books = new HashMap<>();
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+    private String orderNumber;
     private BigDecimal total;
     private LocalDateTime statusChange;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 }

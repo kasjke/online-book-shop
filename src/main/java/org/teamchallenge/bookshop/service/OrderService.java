@@ -1,5 +1,6 @@
 package org.teamchallenge.bookshop.service;
 
+import org.teamchallenge.bookshop.dto.OrderDeliveryDto;
 import org.teamchallenge.bookshop.dto.OrderDto;
 
 public interface OrderService {
@@ -9,5 +10,5 @@ public interface OrderService {
 
     void deleteOrder(Long id);
 
-    void createOrder(OrderDto orderDto);
+    String createOrder(OrderDeliveryDto orderDto, String orderNumber);
 }

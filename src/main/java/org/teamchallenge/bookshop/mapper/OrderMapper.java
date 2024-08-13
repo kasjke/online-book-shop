@@ -3,8 +3,10 @@ package org.teamchallenge.bookshop.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.teamchallenge.bookshop.dto.OrderDeliveryDto;
 import org.teamchallenge.bookshop.dto.OrderDto;
 import org.teamchallenge.bookshop.model.Book;
+import org.teamchallenge.bookshop.model.Delivery;
 import org.teamchallenge.bookshop.model.Order;
 
 import java.util.Map;
@@ -22,4 +24,6 @@ public interface OrderMapper {
         return books.entrySet().stream()
                 .collect(Collectors.toMap(entry -> entry.getKey().getId(), Map.Entry::getValue));
     }
+    @Mapping(target = "id", ignore = true)
+    Delivery toDelivery(OrderDeliveryDto orderDeliveryDto);
 }
