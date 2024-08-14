@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.teamchallenge.bookshop.dto.CartDto;
 import org.teamchallenge.bookshop.dto.CartItemDto;
+import org.teamchallenge.bookshop.dto.CartItemsResponseDto;
 import org.teamchallenge.bookshop.enums.Discount;
+import org.teamchallenge.bookshop.exception.BookNotFoundException;
 import org.teamchallenge.bookshop.exception.CartNotFoundException;
 import org.teamchallenge.bookshop.exception.NotFoundException;
 import org.teamchallenge.bookshop.mapper.BookMapper;
@@ -31,33 +33,41 @@ public class CartServiceImpl implements CartService {
     private final CartMapper cartMapper;
     private final BookMapper bookMapper;
 
-    public List<CartItemDto> getCartItems() {
+    public CartItemsResponseDto getCartItems() {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(CartNotFoundException::new);
 
-        return cart.getItems().entrySet().stream()
+        List<CartItemDto> items = cart.getItems().entrySet().stream()
                 .map(entry -> bookMapper.bookToCartItemDto(entry.getKey(), entry.getValue()))
                 .toList();
+
+        BigDecimal totalPrice = cart.getItems().entrySet().stream()
+                .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new CartItemsResponseDto(items, totalPrice);
     }
 
+
     @Override
-    public CartDto getCartById() {
+    public CartDto getCartByUser() {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId()).orElseThrow(NotFoundException::new);
         return cartMapper.entityToDto(cart);
     }
 
 
-    @Override
-    @Transactional
-    public CartDto addBookToCart(long bookId) {
+    public void addBookToCart(long bookId) {
         User user = userService.getAuthenticatedUser();
-        Cart cart = cartRepository.findById(user.getCart().getId()).orElseThrow(NotFoundException::new);
-        Book book = bookRepository.findById(bookId).orElseThrow(NotFoundException::new);
-        addOrUpdateBook(cart, book, 1);
+        Cart cart = cartRepository.findById(user.getCart().getId())
+                .orElseThrow(CartNotFoundException::new);
+
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(BookNotFoundException::new);
+
+        cart.getItems().merge(book, 1, Integer::sum);
         cartRepository.save(cart);
-        return cartMapper.entityToDto(cart);
     }
 
     @Override

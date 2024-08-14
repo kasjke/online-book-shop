@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.teamchallenge.bookshop.enums.Role;
-import org.teamchallenge.bookshop.exception.NotFoundException;
 import org.teamchallenge.bookshop.exception.UserAlreadyExistsException;
 import org.teamchallenge.bookshop.exception.UserNotFoundException;
 import org.teamchallenge.bookshop.model.Cart;
@@ -28,7 +27,6 @@ import org.teamchallenge.bookshop.service.AuthService;
 import org.teamchallenge.bookshop.service.SendMailService;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final RestTemplate restTemplate;
 
     @Override
-    public AuthenticationResponse register(RegisterRequest registerRequest, UUID cartId) {
+    public AuthenticationResponse register(RegisterRequest registerRequest) {
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException();
         }
@@ -55,17 +53,12 @@ public class AuthServiceImpl implements AuthService {
         user.setPhoneNumber(registerRequest.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setRole(Role.USER);
-        Cart cart;
-        if (cartId != null) {
-            cart = cartRepository.findById(cartId).orElseThrow(NotFoundException::new);
-            user.setCart(cart);
-        } else {
-            cart = new Cart();
-            cart.setIsPermanent(true);
-            cart.setLastModified(LocalDate.now());
-            cartRepository.save(cart);
-            user.setCart(cart);
-        }
+
+        Cart cart = new Cart();
+        cart.setIsPermanent(true);
+        cart.setLastModified(LocalDate.now());
+        cartRepository.save(cart);
+        user.setCart(cart);
         userRepository.save(user);
         sendMailService.sendSuccessRegistrationEmail(registerRequest.getEmail());
 

@@ -20,9 +20,15 @@ public interface BookMapper {
 
     Book dtoToEntity(BookDto bookDto);
 
-    @Mapping(target = "category", source = "book.category", qualifiedByName = "categoryToString")
+    @Mapping(target = "id", source = "book.id")
+    @Mapping(target = "title", source = "book.title")
+    @Mapping(target = "authors", source = "book.authors")
+    @Mapping(target = "titleImage", source = "book.titleImage")
     @Mapping(target = "quantity", source = "quantity")
+    @Mapping(target = "price", source = "book.price")
     CartItemDto bookToCartItemDto(Book book, int quantity);
+
+
 
     @Named("categoryToString")
     default String categoryToString(Category category) {

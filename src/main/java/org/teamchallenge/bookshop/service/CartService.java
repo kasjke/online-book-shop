@@ -2,18 +2,17 @@ package org.teamchallenge.bookshop.service;
 
 import jakarta.transaction.Transactional;
 import org.teamchallenge.bookshop.dto.CartDto;
-import org.teamchallenge.bookshop.dto.CartItemDto;
+import org.teamchallenge.bookshop.dto.CartItemsResponseDto;
 import org.teamchallenge.bookshop.enums.Discount;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public interface CartService {
-    List<CartItemDto> getCartItems();
+    CartItemsResponseDto getCartItems();
 
-    CartDto getCartById();
+    CartDto getCartByUser();
 
-    CartDto addBookToCart(long bookId);
+    void addBookToCart(long bookId);
 
     @Transactional
     CartDto updateQuantity(long bookId, int quantity);

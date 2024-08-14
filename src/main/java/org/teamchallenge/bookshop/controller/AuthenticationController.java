@@ -1,10 +1,13 @@
 package org.teamchallenge.bookshop.controller;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.teamchallenge.bookshop.dto.OAuth2UserInfo;
 import org.teamchallenge.bookshop.model.request.AuthRequest;
 import org.teamchallenge.bookshop.model.request.AuthenticationResponse;
@@ -12,8 +15,8 @@ import org.teamchallenge.bookshop.model.request.RegisterRequest;
 import org.teamchallenge.bookshop.secutity.JwtService;
 import org.teamchallenge.bookshop.service.AuthService;
 import org.teamchallenge.bookshop.service.OAuth2Service;
+import org.teamchallenge.bookshop.util.CookieUtils;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -26,25 +29,23 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
-            @Parameter(description = "Id of cart")
-            @CookieValue(required = false, name = "cartId") UUID cartId,
             @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request, cartId));
+        return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> auth(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.auth(request));
+    public ResponseEntity<AuthenticationResponse> auth(@RequestBody AuthRequest request, HttpServletResponse response) {
+        AuthenticationResponse authResponse = authService.auth(request);
+        CookieUtils.addCookie(response, "jwt", authResponse.getToken(), 7 * 24 * 60 * 60);
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         String token = jwtService.extractTokenFromRequest(request);
-        if (token == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        authService.logout(token);
+        if (token != null) {
+            authService.logout(token);
+            CookieUtils.deleteCookie(request, response, "jwt");        }
         return ResponseEntity.ok().build();
     }
 
