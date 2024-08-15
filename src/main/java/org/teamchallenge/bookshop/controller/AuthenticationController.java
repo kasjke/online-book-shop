@@ -46,8 +46,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/oauth2/success")
-    public ResponseEntity<AuthenticationResponse> oauth2AuthenticationSuccess(@RequestBody OAuth2UserInfo oauth2UserInfo,HttpServletResponse httpResponse) {
-        AuthenticationResponse response = oAuth2Service.processOAuth2Authentication(oauth2UserInfo, httpResponse);
+    public ResponseEntity<AuthenticationResponse> oauth2AuthenticationSuccess(@RequestBody OAuth2UserInfo oauth2UserInfo) {
+        AuthenticationResponse response = oAuth2Service.processOAuth2Authentication(oauth2UserInfo);
         return ResponseEntity.ok(response);
     }
 }
