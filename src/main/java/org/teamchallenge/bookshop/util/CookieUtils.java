@@ -3,7 +3,9 @@ package org.teamchallenge.bookshop.util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CookieUtils {
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
@@ -24,18 +26,18 @@ public class CookieUtils {
         }
         return null;
     }
+    public static void deleteCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+    }
+    public void addJwtCookie(HttpServletResponse response, String token) {
+        CookieUtils.addCookie(response, "jwt", token, 7 * 24 * 60 * 60);
+    }
 
-    public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                }
-            }
-        }
+    public void removeJwtCookie(HttpServletResponse response) {
+        CookieUtils.deleteCookie(response, "jwt");
     }
 }

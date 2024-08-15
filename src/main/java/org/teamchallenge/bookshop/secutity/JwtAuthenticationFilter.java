@@ -16,6 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static org.teamchallenge.bookshop.constants.ValidationConstants.TOKEN_EXPIRED;
+
 
 @Component
 @AllArgsConstructor
@@ -28,18 +30,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        final String jwt = jwtService.extractTokenFromRequest(request);
+        if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
-        String jwt = authHeader.substring(7);
 
         if (jwtService.isTokenBlacklisted(jwt)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is blacklisted");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, TOKEN_EXPIRED);
             return;
         }
-            String username = jwtService.extractUsername(jwt);
+            String username = jwtService.extractUserByEmailOrPhone(jwt);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 if (jwtService.isTokenValid(jwt) && username.equals(userDetails.getUsername())) {

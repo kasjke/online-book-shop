@@ -1,5 +1,7 @@
 package org.teamchallenge.bookshop.service.Impl;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +27,7 @@ import org.teamchallenge.bookshop.repository.UserRepository;
 import org.teamchallenge.bookshop.secutity.JwtService;
 import org.teamchallenge.bookshop.service.AuthService;
 import org.teamchallenge.bookshop.service.SendMailService;
+import org.teamchallenge.bookshop.util.CookieUtils;
 
 import java.time.LocalDate;
 
@@ -38,11 +41,11 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRepository tokenRepository;
     private final JwtService jwtService;
     private final SendMailService sendMailService;
-
+    private final CookieUtils cookieUtils;
     private final RestTemplate restTemplate;
 
     @Override
-    public AuthenticationResponse register(RegisterRequest registerRequest) {
+    public AuthenticationResponse register(RegisterRequest registerRequest, HttpServletResponse response) {
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException();
         }
@@ -62,13 +65,16 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
         sendMailService.sendSuccessRegistrationEmail(registerRequest.getEmail());
 
+        String token = jwtService.generateJWT(user);
+        cookieUtils.addJwtCookie(response, token);
+
         return AuthenticationResponse.builder()
-                .token(jwtService.generateJWT(user))
+                .token(token)
                 .build();
     }
 
     @Override
-    public AuthenticationResponse auth(AuthRequest authRequest) {
+    public AuthenticationResponse auth(AuthRequest authRequest,HttpServletResponse response) {
         User user = userRepository.findByEmailOrPhoneNumber(authRequest.getEmailOrPhone())
                 .orElseThrow(UserNotFoundException::new);
 
@@ -78,26 +84,33 @@ public class AuthServiceImpl implements AuthService {
                         authRequest.getPassword()
                 )
         );
+        String token = jwtService.generateJWT(user);
+        cookieUtils.addJwtCookie(response, token);
 
         return AuthenticationResponse.builder()
-                .token(jwtService.generateJWT(user))
+                .token(token)
                 .build();
     }
 
-    public void logout(String token) {
-        String provider = jwtService.extractProviderFromToken(token);
-        switch (provider) {
-            case "jwt":
-                handleJwtLogout(token);
-                break;
-            case "google":
-                handleGoogleLogout(token);
-                break;
-            case "facebook":
-                handleFacebookLogout(token);
-                break;
-            default:
-                throw new RuntimeException("Unsupported token provider");
+    @Override
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = jwtService.extractTokenFromRequest(request);
+        if (token != null) {
+            String provider = jwtService.extractProviderFromToken(token);
+            switch (provider) {
+                case "jwt":
+                    handleJwtLogout(token);
+                    break;
+                case "google":
+                    handleGoogleLogout(token);
+                    break;
+                case "facebook":
+                    handleFacebookLogout(token);
+                    break;
+                default:
+                    throw new RuntimeException("Unsupported token provider");
+            }
+            cookieUtils.removeJwtCookie(response);
         }
     }
 

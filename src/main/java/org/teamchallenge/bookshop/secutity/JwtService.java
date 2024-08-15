@@ -8,11 +8,11 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.teamchallenge.bookshop.exception.SecretKeyNotFoundException;
 import org.teamchallenge.bookshop.model.Token;
 import org.teamchallenge.bookshop.model.User;
 import org.teamchallenge.bookshop.repository.TokenRepository;
+import org.teamchallenge.bookshop.util.CookieUtils;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
@@ -41,7 +41,7 @@ public class JwtService {
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractUsername(String token) {
+    public String extractUserByEmailOrPhone(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(signingKey)
                 .build()
@@ -102,11 +102,7 @@ public class JwtService {
     }
 
     public String extractTokenFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
+        return CookieUtils.getCookieValue(request, "jwt");
     }
 
     public Token blacklistToken(String jwt) {
