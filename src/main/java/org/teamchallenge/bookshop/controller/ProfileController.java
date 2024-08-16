@@ -5,11 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.teamchallenge.bookshop.dto.BookDto;
+import org.teamchallenge.bookshop.dto.ProfileUpdateDto;
 import org.teamchallenge.bookshop.model.Profile;
 import org.teamchallenge.bookshop.service.ProfileService;
 
@@ -21,9 +19,9 @@ import org.teamchallenge.bookshop.service.ProfileService;
 public class ProfileController {
     private final ProfileService profileService;
 
-    @PostMapping("/add")
-    public ResponseEntity<Void> addProfile(@RequestBody Profile profile) {
-        profileService.addProfile(profile);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    @PatchMapping("update/{id}")
+    public ResponseEntity<Profile> updateProfile(@PathVariable Long id, @RequestBody ProfileUpdateDto profileUpdateDto) {
+        Profile updatedProfile = profileService.updateProfile(id, profileUpdateDto);
+        return ResponseEntity.ok(updatedProfile);
     }
 }
