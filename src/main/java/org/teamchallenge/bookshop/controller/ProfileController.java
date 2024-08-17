@@ -3,8 +3,8 @@ package org.teamchallenge.bookshop.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.teamchallenge.bookshop.dto.ProfileDto;
 import org.teamchallenge.bookshop.dto.ProfileUpdateDto;
 import org.teamchallenge.bookshop.mapper.ProfileMapper;
 import org.teamchallenge.bookshop.model.Profile;
@@ -23,10 +23,10 @@ public class ProfileController {
     private final UserService userService;
 
     @PatchMapping("update")
-    public ResponseEntity updateProfile(@RequestBody ProfileUpdateDto profileUpdateDto) {
+    public ProfileDto updateProfile(@RequestBody ProfileUpdateDto profileUpdateDto) {
         User user = userService.getAuthenticatedUser();
         Long id = user.getProfile().getId();
         Profile updatedProfile = profileService.updateProfile(id, profileUpdateDto);
-        return ResponseEntity.ok(updatedProfile);
+        return profileMapper.toDto(updatedProfile);
     }
 }
