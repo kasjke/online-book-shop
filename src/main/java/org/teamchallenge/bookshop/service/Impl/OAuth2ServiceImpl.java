@@ -1,6 +1,5 @@
 package org.teamchallenge.bookshop.service.Impl;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.teamchallenge.bookshop.Oauth2.UserCreationService;
@@ -10,7 +9,6 @@ import org.teamchallenge.bookshop.model.request.AuthenticationResponse;
 import org.teamchallenge.bookshop.repository.UserRepository;
 import org.teamchallenge.bookshop.secutity.JwtService;
 import org.teamchallenge.bookshop.service.OAuth2Service;
-import org.teamchallenge.bookshop.util.CookieUtils;
 
 
 @Service
