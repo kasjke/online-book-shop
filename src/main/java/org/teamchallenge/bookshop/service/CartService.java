@@ -15,7 +15,7 @@ public interface CartService {
     void addBookToCart(long bookId);
 
     @Transactional
-    CartItemsResponseDto updateQuantity(long bookId, int quantity);
+    CartItemsResponseDto updateQuantity(long bookId, String operation, Integer quantity);
 
     @Transactional
     void deleteBookFromCart(long bookId);

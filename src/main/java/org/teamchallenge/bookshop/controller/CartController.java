@@ -36,15 +36,18 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
+
     @Operation(summary = "Update quantity of book in cart",
             security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/update")
     public ResponseEntity<CartItemsResponseDto> updateBookQuantityInCart(
             @Parameter(description = "Id of book")
             @RequestParam long bookId,
-            @Parameter(description = "Change in quantity. Use positive for increase, negative for decrease.")
-            @RequestParam int quantityChange) {
-        return ResponseEntity.ok(cartService.updateQuantity(bookId, quantityChange));
+            @Parameter(description = "Operation: '+' for increase, '-' for decrease, any other value for set quantity")
+            @RequestParam(required = false) String operation,
+            @Parameter(description = "New quantity of the book")
+            @RequestParam(required = false) Integer quantity) {
+        return ResponseEntity.ok(cartService.updateQuantity(bookId, operation, quantity));
     }
     @Operation(summary = "Calculate total price",
             description = "Calculate the total price of items in the cart",

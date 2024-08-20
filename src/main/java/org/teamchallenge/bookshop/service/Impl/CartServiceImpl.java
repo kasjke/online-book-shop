@@ -75,22 +75,23 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartItemsResponseDto updateQuantity(long bookId, int quantityChange) {
+    public CartItemsResponseDto updateQuantity(long bookId, String operation, Integer quantity) {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(CartNotFoundException::new);
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(BookNotFoundException::new);
-
         int currentQuantity = cart.getItems().getOrDefault(book, 0);
-        int newQuantity = Math.max(0, currentQuantity + quantityChange);
-
-        if (newQuantity == 0) {
-            cart.getItems().remove(book);
+        int newQuantity;
+        if ("1".equals(operation)) {
+            newQuantity = currentQuantity + 1;
+        } else if ("-1".equals(operation)) {
+            newQuantity = Math.max(1, currentQuantity - 1);
         } else {
-            cart.getItems().put(book, newQuantity);
+            newQuantity = quantity != null ? Math.max(1, quantity) : currentQuantity;
         }
 
+        cart.getItems().put(book, newQuantity);
         cart.setLastModified(LocalDate.now());
         cartRepository.save(cart);
 
@@ -101,6 +102,11 @@ public class CartServiceImpl implements CartService {
         return response;
     }
 
+    private BigDecimal calculateTotalPrice(Cart cart) {
+        return cart.getItems().entrySet().stream()
+                .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
     @Override
     @Transactional
     public void deleteBookFromCart(long bookId) {
@@ -119,11 +125,7 @@ public class CartServiceImpl implements CartService {
         cart.setLastModified(LocalDate.now());
     }
 
-    private BigDecimal calculateTotalPrice(Cart cart) {
-        return cart.getItems().entrySet().stream()
-                .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
+
 
     public BigDecimal calculateTotalPriceWithDiscount() {
         User user = userService.getAuthenticatedUser();
