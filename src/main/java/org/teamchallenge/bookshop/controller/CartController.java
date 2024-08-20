@@ -36,41 +36,41 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Update amount of book in cart",
+    @Operation(summary = "Update quantity of book in cart",
             security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/update")
-    public ResponseEntity<CartDto> updateBookQuantityInCart(
-
+    public ResponseEntity<CartItemsResponseDto> updateBookQuantityInCart(
             @Parameter(description = "Id of book")
             @RequestParam long bookId,
-            @Parameter(description = "New quantity of book")
-            @RequestParam int quantity) {
-        return ResponseEntity.ok(cartService.updateQuantity(bookId, quantity));
+            @Parameter(description = "Change in quantity. Use positive for increase, negative for decrease.")
+            @RequestParam int quantityChange) {
+        return ResponseEntity.ok(cartService.updateQuantity(bookId, quantityChange));
     }
     @Operation(summary = "Calculate total price",
             description = "Calculate the total price of items in the cart",
             security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/total")
     public ResponseEntity<BigDecimal> calculateTotalPrice() {
-        BigDecimal totalPrice = cartService.calculateTotalPrice();
+        BigDecimal totalPrice = cartService.calculateTotalPriceWithDiscount();
         return ResponseEntity.ok(totalPrice);
     }
     @PutMapping("/applyDiscount")
-    public ResponseEntity<CartDto> applyDiscount(
+    public ResponseEntity<Void> applyDiscount(
             @Parameter(description = "discount of books in cart")
             @RequestParam Discount discount
             ) {
         cartService.applyDiscount(discount);
-        return ResponseEntity.ok(cartService.getCartByUser());
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Delete book from cart",
             security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping("/delete")
-    public ResponseEntity<CartDto> deleteBookFromCart(
+    public ResponseEntity<Void> deleteBookFromCart(
             @Parameter(description = "Id of book")
             @RequestParam long bookId) {
-        return ResponseEntity.ok(cartService.deleteBookFromCart(bookId));
+        cartService.deleteBookFromCart(bookId);
+        return ResponseEntity.noContent().build();
     }
 
 }

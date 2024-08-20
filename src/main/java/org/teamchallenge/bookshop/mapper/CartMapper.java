@@ -5,9 +5,11 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.CartDto;
+import org.teamchallenge.bookshop.dto.CartItemDto;
 import org.teamchallenge.bookshop.model.Book;
 import org.teamchallenge.bookshop.model.Cart;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,7 +43,23 @@ public interface CartMapper {
                         BookDto::getQuantity
                 ));
     }
-
+    @Named("mapCartItemsToDto")
+    default List<CartItemDto> mapCartItemsToDto(Map<Book, Integer> items) {
+        if (items == null) {
+            return java.util.Collections.emptyList();
+        }
+        return items.entrySet().stream()
+                .map(entry -> {
+                    Book book = entry.getKey();
+                    CartItemDto dto = new CartItemDto();
+                    dto.setId(book.getId());
+                    dto.setTitle(book.getTitle());
+                    dto.setQuantity(entry.getValue());
+                    dto.setPrice(book.getPrice().multiply(BigDecimal.valueOf(entry.getValue())));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
     BookDto bookToBookDto(Book book);
     Book bookDtoToBook(BookDto bookDto);
 }

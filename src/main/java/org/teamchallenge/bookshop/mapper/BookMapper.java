@@ -22,8 +22,6 @@ public interface BookMapper {
 
     @Mapping(target = "id", source = "book.id")
     @Mapping(target = "title", source = "book.title")
-    @Mapping(target = "authors", source = "book.authors")
-    @Mapping(target = "titleImage", source = "book.titleImage")
     @Mapping(target = "quantity", source = "quantity")
     @Mapping(target = "price", source = "book.price")
     CartItemDto bookToCartItemDto(Book book, int quantity);

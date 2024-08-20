@@ -15,12 +15,12 @@ public interface CartService {
     void addBookToCart(long bookId);
 
     @Transactional
-    CartDto updateQuantity(long bookId, int quantity);
+    CartItemsResponseDto updateQuantity(long bookId, int quantity);
 
     @Transactional
-    CartDto deleteBookFromCart(long bookId);
+    void deleteBookFromCart(long bookId);
 
-    BigDecimal calculateTotalPrice();
+    BigDecimal calculateTotalPriceWithDiscount();
 
     void applyDiscount(Discount discount);
 }

@@ -39,5 +39,11 @@ public class ProfileServiceImpl implements ProfileService {
         return profileMapper.toProfileUpdateDto(savedProfile);
     }
 
+    @Override
+    public ProfileUpdateDto getUserData() {
+        User user = userService.getAuthenticatedUser();
+        return profileMapper.toProfileUpdateDto(user);
+    }
+
 
 }

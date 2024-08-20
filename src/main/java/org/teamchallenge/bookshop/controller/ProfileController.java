@@ -6,13 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.teamchallenge.bookshop.dto.ProfileUpdateDto;
+import org.teamchallenge.bookshop.dto.UserDto;
 import org.teamchallenge.bookshop.service.ProfileService;
 
 @RestController
@@ -38,5 +38,10 @@ public class ProfileController {
     @PatchMapping("/update")
     public ProfileUpdateDto updateProfile(@RequestBody ProfileUpdateDto profileUpdateDto) {
         return profileService.updateProfile(profileUpdateDto);
+    }
+    @GetMapping("/user")
+    public ResponseEntity<ProfileUpdateDto> getUserData(){
+        ProfileUpdateDto profileUpdateDto = profileService.getUserData();
+        return ResponseEntity.ok(profileUpdateDto);
     }
 }

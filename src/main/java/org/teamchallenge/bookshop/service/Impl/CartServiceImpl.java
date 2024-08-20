@@ -21,8 +21,11 @@ import org.teamchallenge.bookshop.service.CartService;
 import org.teamchallenge.bookshop.service.UserService;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,51 +75,77 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartDto updateQuantity( long bookId, int quantity) {
+    public CartItemsResponseDto updateQuantity(long bookId, int quantityChange) {
         User user = userService.getAuthenticatedUser();
-        Cart cart = cartRepository.findById(user.getCart().getId()).orElseThrow(NotFoundException::new);
-        Book book = bookRepository.findById(bookId).orElseThrow(NotFoundException::new);
-        addOrUpdateBook(cart, book, quantity);
+        Cart cart = cartRepository.findById(user.getCart().getId())
+                .orElseThrow(CartNotFoundException::new);
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(BookNotFoundException::new);
+
+        int currentQuantity = cart.getItems().getOrDefault(book, 0);
+        int newQuantity = Math.max(0, currentQuantity + quantityChange);
+
+        if (newQuantity == 0) {
+            cart.getItems().remove(book);
+        } else {
+            cart.getItems().put(book, newQuantity);
+        }
+
+        cart.setLastModified(LocalDate.now());
         cartRepository.save(cart);
-        return cartMapper.entityToDto(cart);
+
+        CartItemsResponseDto response = new CartItemsResponseDto();
+        response.setItems(cartMapper.mapCartItemsToDto(cart.getItems()));
+        response.setTotalPrice(calculateTotalPrice(cart));
+
+        return response;
     }
 
     @Override
     @Transactional
-    public CartDto deleteBookFromCart(long bookId) {
+    public void deleteBookFromCart(long bookId) {
         User user = userService.getAuthenticatedUser();
-        Cart cart = cartRepository.findById(user.getCart().getId()).orElseThrow(NotFoundException::new);
+        Cart cart = user.getCart();
         Book book = bookRepository.findById(bookId).orElseThrow(NotFoundException::new);
         deleteBook(cart, book);
         cartRepository.save(cart);
-        return cartMapper.entityToDto(cart);
     }
 
-    private void addOrUpdateBook(Cart cart, Book book, int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Invalid quantity");
-        }
-        cart.getItems().merge(book, quantity, Integer::sum);
-        cart.setLastModified(LocalDate.now());
-    }
+
+
 
     private void deleteBook(Cart cart, Book book) {
         cart.getItems().remove(book);
         cart.setLastModified(LocalDate.now());
     }
-    public BigDecimal calculateTotalPrice() {
+
+    private BigDecimal calculateTotalPrice(Cart cart) {
+        return cart.getItems().entrySet().stream()
+                .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal calculateTotalPriceWithDiscount() {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(CartNotFoundException::new);
+
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
         BigDecimal totalPrice = cart.getItems().entrySet().stream()
                 .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         if (cart.getDiscount() != null && cart.getDiscount() != Discount.NONE) {
             int discountPercentage = cart.getDiscount().getPercentage();
-            BigDecimal discountAmount = totalPrice.multiply(BigDecimal.valueOf(discountPercentage)).divide(BigDecimal.valueOf(100));
+            BigDecimal discountAmount = totalPrice.multiply(BigDecimal.valueOf(discountPercentage))
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
             totalPrice = totalPrice.subtract(discountAmount);
         }
-        return totalPrice;
+
+        return totalPrice.setScale(2, RoundingMode.HALF_UP);
     }
     public void applyDiscount( Discount discount) {
         User user = userService.getAuthenticatedUser();
