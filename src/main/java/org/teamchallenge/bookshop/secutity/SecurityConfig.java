@@ -72,7 +72,7 @@ public class SecurityConfig {
         userInfo.setProvider(oAuth2User.getProvider());
         userInfo.setProviderId(oAuth2User.getProviderId());
 
-        AuthenticationResponse authResponse = oAuth2Service.processOAuth2Authentication(userInfo);
+        AuthenticationResponse authResponse = oAuth2Service.processOAuth2Authentication(userInfo,response);
 
         response.setContentType("application/json");
         response.getWriter().write(new ObjectMapper().writeValueAsString(authResponse));
