@@ -84,8 +84,9 @@ public class AuthServiceImpl implements AuthService {
                         authRequest.getPassword()
                 )
         );
-        String token = jwtService.generateJWT(user);
-        cookieUtils.addJwtCookie(response, token);
+
+        String token = jwtService.generateJWT(user, authRequest.isRememberMe());
+        cookieUtils.addJwtCookie(response, token, authRequest.isRememberMe());
 
         return AuthenticationResponse.builder()
                 .token(token)

@@ -26,12 +26,14 @@ import static org.teamchallenge.bookshop.constants.ValidationConstants.INVALID_J
 
 @Service
 public class JwtService {
+
     private final TokenRepository tokenRepository;
     private final SecretKey signingKey;
 
     private static final String SECRET_KEY = Optional.ofNullable(System.getenv("SECRET_KEY"))
             .orElseThrow(SecretKeyNotFoundException::new);
 
+    private static final long REMEMBER_ME_EXPIRATION_TIME =1000 * 60 * 60 * 24 * 10 ;
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7;
 
     @Autowired
@@ -72,7 +74,7 @@ public class JwtService {
         return parts.length == 3;
     }
 
-    public String generateJWT(User user) {
+    private Map<String, Object> generateClaims(User user) {
         Map<String, Object> claims = new HashMap<>();
         if (user.getEmail() != null) {
             claims.put("email", user.getEmail());
@@ -81,13 +83,22 @@ public class JwtService {
             claims.put("phoneNumber", user.getPhoneNumber());
         }
         claims.put("cartId", user.getCart().getId());
+        return claims;
+    }
 
+    public String generateJWT(User user) {
+        return generateJWT(user, false);
+    }
+
+    public String generateJWT(User user, boolean rememberMe) {
+        Map<String, Object> claims = generateClaims(user);
         String subject = user.getEmail() != null ? user.getEmail() : user.getPhoneNumber();
+        long expirationTime = rememberMe ? REMEMBER_ME_EXPIRATION_TIME : EXPIRATION_TIME;
 
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(signingKey)
                 .compact();
     }

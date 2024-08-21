@@ -36,6 +36,10 @@ public class CookieUtils {
     public void addJwtCookie(HttpServletResponse response, String token) {
         CookieUtils.addCookie(response, "jwt", token, 7 * 24 * 60 * 60);
     }
+    public void addJwtCookie(HttpServletResponse response, String token, boolean rememberMe) {
+        int maxAge = rememberMe ? 10 * 24 * 60 * 60 : 7 * 24 * 60 * 60;
+        CookieUtils.addCookie(response, "jwt", token, maxAge);
+    }
 
     public void removeJwtCookie(HttpServletResponse response) {
         CookieUtils.deleteCookie(response, "jwt");

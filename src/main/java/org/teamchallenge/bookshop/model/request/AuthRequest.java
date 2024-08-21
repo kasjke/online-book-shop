@@ -15,4 +15,5 @@ public class AuthRequest {
     private String emailOrPhone;
     @Pattern(regexp = PASSWORD_REGEXP, message = WRONG_PASSWORD_CREATION_MESSAGE)
     private String password;
+    private boolean rememberMe;
 }
