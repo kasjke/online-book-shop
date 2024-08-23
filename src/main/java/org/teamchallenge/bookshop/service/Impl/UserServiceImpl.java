@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDto getUserByToken(String jwt) {
-        String username = jwtService.extractUserByEmailOrPhone(jwt);
+        String username = jwtService.extractUsername(jwt);
         User user = userRepository.findByEmail(username)
                 .orElseThrow(UserNotFoundException::new);
         return userMapper.entityToDto(user);

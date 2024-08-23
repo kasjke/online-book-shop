@@ -33,6 +33,10 @@ public class ExceptionController {
     public ResponseEntity<ErrorObject> handleUnexpectedException(Exception e) {
         return handleException(e, UNEXPECTED_ERROR_OCCURRED, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    @ExceptionHandler(WrongPasswordException.class)
+    public ResponseEntity<ErrorObject> notFoundHandler(WrongPasswordException e) {
+        return handleException(e, OLD_PASSWORD_INCORRECT, HttpStatus.NOT_FOUND);
+    }
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorObject> notFoundHandler(UserNotFoundException e) {
         return handleException(e, NOT_FOUND_ERROR_OCCURRED, HttpStatus.NOT_FOUND);

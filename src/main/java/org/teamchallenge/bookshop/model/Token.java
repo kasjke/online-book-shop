@@ -1,34 +1,50 @@
 package org.teamchallenge.bookshop.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "token")
+    @Column(unique = true)
     private String tokenValue;
+
+    @Enumerated(EnumType.STRING)
+    private TokenType tokenType = TokenType.BEARER;
+
+    private boolean revoked;
+
+    private boolean expired;
 
     private LocalDateTime expiryDate;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private boolean revoked;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public Token(String tokenValue, LocalDateTime expiryDate) {
-        this.tokenValue = tokenValue;
-        this.expiryDate = expiryDate;
-        this.revoked = false;
+
+
+    public enum TokenType {
+        BEARER
     }
 
-
+    public Token(String tokenValue, LocalDateTime expiryDate, User user) {
+        this.tokenValue = tokenValue;
+        this.expiryDate = expiryDate;
+        this.user = user;
+        this.revoked = false;
+        this.expired = false;
+        this.tokenType = TokenType.BEARER;
+    }
 }

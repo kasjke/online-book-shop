@@ -1,14 +1,13 @@
 package org.teamchallenge.bookshop.model.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class AuthenticationResponse {
-    private String token;
+    private String accessToken;
+    private String refreshToken;
 }

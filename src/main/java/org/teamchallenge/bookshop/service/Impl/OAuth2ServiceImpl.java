@@ -1,6 +1,5 @@
 package org.teamchallenge.bookshop.service.Impl;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.teamchallenge.bookshop.Oauth2.UserCreationService;
@@ -10,7 +9,6 @@ import org.teamchallenge.bookshop.model.request.AuthenticationResponse;
 import org.teamchallenge.bookshop.repository.UserRepository;
 import org.teamchallenge.bookshop.secutity.JwtService;
 import org.teamchallenge.bookshop.service.OAuth2Service;
-import org.teamchallenge.bookshop.util.CookieUtils;
 
 
 @Service
@@ -19,18 +17,21 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final UserCreationService userCreationService;
-    private final CookieUtils cookieUtils;
 
     @Override
-    public AuthenticationResponse processOAuth2Authentication(OAuth2UserInfo oauth2UserInfo,HttpServletResponse response) {
+    public AuthenticationResponse processOAuth2Authentication(OAuth2UserInfo oauth2UserInfo) {
         User user = userRepository.findByEmail(oauth2UserInfo.getEmail())
                 .map(existingUser -> updateExistingUser(existingUser, oauth2UserInfo))
                 .orElseGet(() -> userCreationService.createNewUser(oauth2UserInfo));
-        String token = jwtService.generateJWT(user);
-        cookieUtils.addJwtCookie(response, token);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        jwtService.saveUserToken(user, accessToken);
 
         return AuthenticationResponse.builder()
-                .token(token)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -41,5 +42,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         existingUser.setProviderId(oauth2UserInfo.getProviderId());
         return userRepository.save(existingUser);
     }
+
 
 }

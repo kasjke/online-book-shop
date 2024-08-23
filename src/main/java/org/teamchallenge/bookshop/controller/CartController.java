@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.teamchallenge.bookshop.dto.CartDto;
 import org.teamchallenge.bookshop.dto.CartItemsResponseDto;
 import org.teamchallenge.bookshop.enums.Discount;
 import org.teamchallenge.bookshop.service.CartService;
@@ -21,59 +20,68 @@ import java.math.BigDecimal;
 public class CartController {
     private final CartService cartService;
 
+    @Operation(summary = "Get items in cart",
+            description = "Fetches all items currently in the user's cart",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/items")
     public ResponseEntity<CartItemsResponseDto> getCartItems() {
         CartItemsResponseDto items = cartService.getCartItems();
         return ResponseEntity.ok(items);
     }
 
-    @Operation(summary = "Add book in cart",
+    @Operation(summary = "Add a book to cart",
+            description = "Adds a book to the user's cart using the book ID",
             security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/add")
     public ResponseEntity<Void> addBookToCart(
+            @Parameter(description = "ID of the book to add to the cart")
             @RequestParam long bookId) {
         cartService.addBookToCart(bookId);
         return ResponseEntity.noContent().build();
     }
 
-
-    @Operation(summary = "Update quantity of book in cart",
+    @Operation(summary = "Update quantity of a book in cart",
+            description = "Updates the quantity of a specific book in the user's cart",
             security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/update")
     public ResponseEntity<CartItemsResponseDto> updateBookQuantityInCart(
-            @Parameter(description = "Id of book")
+            @Parameter(description = "ID of the book to update")
             @RequestParam long bookId,
-            @Parameter(description = "Operation: '+' for increase, '-' for decrease, any other value for set quantity")
+            @Parameter(description = "Operation: '+' to increase, '-' to decrease, any other value to set specific quantity")
             @RequestParam(required = false) String operation,
             @Parameter(description = "New quantity of the book")
             @RequestParam(required = false) Integer quantity) {
         return ResponseEntity.ok(cartService.updateQuantity(bookId, operation, quantity));
     }
-    @Operation(summary = "Calculate total price",
-            description = "Calculate the total price of items in the cart",
+
+    @Operation(summary = "Calculate total price of cart",
+            description = "Calculates the total price of items in the cart, applying any available discounts",
             security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/total")
     public ResponseEntity<BigDecimal> calculateTotalPrice() {
         BigDecimal totalPrice = cartService.calculateTotalPriceWithDiscount();
         return ResponseEntity.ok(totalPrice);
     }
+
+    @Operation(summary = "Apply discount to cart",
+            description = "Applies a discount to the items in the cart",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/applyDiscount")
     public ResponseEntity<Void> applyDiscount(
-            @Parameter(description = "discount of books in cart")
-            @RequestParam Discount discount
-            ) {
+            @Parameter(description = "Type of discount to apply")
+            @RequestParam Discount discount) {
         cartService.applyDiscount(discount);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Delete book from cart",
+    @Operation(summary = "Delete a book from cart",
+            description = "Deletes a book from the user's cart using the book ID",
             security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteBookFromCart(
-            @Parameter(description = "Id of book")
+            @Parameter(description = "ID of the book to delete from the cart")
             @RequestParam long bookId) {
         cartService.deleteBookFromCart(bookId);
         return ResponseEntity.noContent().build();
     }
-
 }
