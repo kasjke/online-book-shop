@@ -18,6 +18,5 @@ public interface ProfileMapper {
     @Mapping(source = "surname", target = "lastName")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "phoneNumber", target = "phoneNumber")
-    @Mapping(source = "password", target = "password")
     ProfileUpdateDto toProfileUpdateDto(User user);
 }

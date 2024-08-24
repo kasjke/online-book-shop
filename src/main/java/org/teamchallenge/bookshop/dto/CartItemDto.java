@@ -18,4 +18,6 @@ public class CartItemDto {
     private String title;
     private int quantity;
     private BigDecimal price;
+    private String authors;
+    private String titleImage;
 }

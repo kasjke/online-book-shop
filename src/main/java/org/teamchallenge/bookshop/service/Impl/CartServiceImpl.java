@@ -34,6 +34,7 @@ public class CartServiceImpl implements CartService {
     private final CartMapper cartMapper;
     private final BookMapper bookMapper;
 
+@Override
     public CartItemsResponseDto getCartItems() {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId())
