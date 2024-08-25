@@ -104,7 +104,10 @@ public class AuthServiceImpl implements AuthService {
 
         return userRepository.findByEmail(userEmail)
                 .map(user -> {
-                    if (jwtService.isTokenValid(refreshToken)) {
+                    String currentAccessToken = jwtService.extractTokenFromRequest(request);
+
+                    if ((currentAccessToken == null || jwtService.isTokenExpired(currentAccessToken))
+                        && jwtService.isTokenValid(refreshToken)) {
                         String newAccessToken = jwtService.generateAccessToken(user);
                         jwtService.revokeAllUserTokens(user);
                         jwtService.saveUserToken(user, newAccessToken);
@@ -113,9 +116,9 @@ public class AuthServiceImpl implements AuthService {
                                 .refreshToken(refreshToken)
                                 .build();
                     }
-                    return null;
+                    throw new InvalidTokenException();
                 })
-                .orElse(null);
+                .orElseThrow(InvalidTokenException::new);
     }
 
     @Override

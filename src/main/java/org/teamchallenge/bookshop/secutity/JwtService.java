@@ -1,5 +1,6 @@
 package org.teamchallenge.bookshop.secutity;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -58,13 +59,30 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
-        return tokenRepository.findByTokenValue(token)
-                .map(storedToken -> !storedToken.isRevoked()
-                                    && !storedToken.isExpired()
-                                    && storedToken.getExpiryDate().isAfter(LocalDateTime.now()))
-                .orElse(false);
+        try {
+            Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token);
+            return tokenRepository.findByTokenValue(token)
+                    .map(storedToken -> !storedToken.isRevoked()
+                                        && !storedToken.isExpired()
+                                        && storedToken.getExpiryDate().isAfter(LocalDateTime.now()))
+                    .orElse(false);
+        } catch (JwtException e) {
+            return false;
+        }
     }
-
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiration = Jwts.parser()
+                    .verifyWith(signingKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration();
+            return expiration.before(new Date());
+        } catch (JwtException e) {
+            return true;
+        }
+    }
     public void saveUserToken(User user, String jwtToken) {
         Token token = Token.builder()
                 .user(user)
