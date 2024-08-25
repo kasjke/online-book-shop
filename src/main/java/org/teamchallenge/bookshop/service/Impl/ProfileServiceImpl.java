@@ -34,6 +34,18 @@ public class ProfileServiceImpl implements ProfileService {
             profile.setUser(user);
             user.setProfile(profile);
         }
+        if (profileUpdateDto.getFirstName() == null) {
+            profileUpdateDto.setFirstName(user.getName());
+        }
+        if (profileUpdateDto.getLastName() == null) {
+            profileUpdateDto.setLastName(user.getSurname());
+        }
+        if (profileUpdateDto.getEmail() == null) {
+            profileUpdateDto.setEmail(user.getEmail());
+        }
+        if (profileUpdateDto.getPhoneNumber() == null) {
+            profileUpdateDto.setPhoneNumber(user.getPhoneNumber());
+        }
         profileMapper.updateProfileFromDto(profileUpdateDto, profile);
         userMapper.updateUserFromProfileDto(profileUpdateDto, user);
 
