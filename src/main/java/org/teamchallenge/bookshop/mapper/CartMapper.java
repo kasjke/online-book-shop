@@ -56,6 +56,8 @@ public interface CartMapper {
                     dto.setTitle(book.getTitle());
                     dto.setQuantity(entry.getValue());
                     dto.setPrice(book.getPrice().multiply(BigDecimal.valueOf(entry.getValue())));
+                    dto.setAuthors(book.getAuthors());
+                    dto.setTitleImage(book.getTitleImage());
                     return dto;
                 })
                 .collect(Collectors.toList());
