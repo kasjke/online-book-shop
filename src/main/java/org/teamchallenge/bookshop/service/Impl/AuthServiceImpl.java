@@ -14,6 +14,7 @@ import org.teamchallenge.bookshop.model.Cart;
 import org.teamchallenge.bookshop.model.User;
 import org.teamchallenge.bookshop.model.request.AuthRequest;
 import org.teamchallenge.bookshop.model.request.AuthenticationResponse;
+import org.teamchallenge.bookshop.model.request.RefreshTokenRequest;
 import org.teamchallenge.bookshop.model.request.RegisterRequest;
 import org.teamchallenge.bookshop.repository.CartRepository;
 import org.teamchallenge.bookshop.repository.TokenRepository;
@@ -91,39 +92,38 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-    public AuthenticationResponse refreshToken(HttpServletRequest request) {
-        final String refreshToken = jwtService.extractTokenFromRequest(request);
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        String refreshToken = refreshTokenRequest.getRefreshToken();
+
         if (refreshToken == null) {
             throw new InvalidTokenException();
         }
 
         final String userEmail = jwtService.extractUsername(refreshToken);
+
         if (userEmail == null) {
             throw new InvalidTokenException();
         }
-
-        return userRepository.findByEmail(userEmail)
-                .map(user -> {
-                    String currentAccessToken = jwtService.extractTokenFromRequest(request);
-
-                    if ((currentAccessToken == null || jwtService.isTokenExpired(currentAccessToken))
-                        && jwtService.isTokenValid(refreshToken)) {
+        if (!jwtService.isTokenExpired(refreshToken)) {
+            return userRepository.findByEmail(userEmail)
+                    .map(user -> {
                         String newAccessToken = jwtService.generateAccessToken(user);
+                        String newRefreshToken = jwtService.generateRefreshToken(user);
                         jwtService.revokeAllUserTokens(user);
                         jwtService.saveUserToken(user, newAccessToken);
+                        jwtService.saveUserToken(user, newRefreshToken);
                         return AuthenticationResponse.builder()
                                 .accessToken(newAccessToken)
-                                .refreshToken(refreshToken)
+                                .refreshToken(newRefreshToken)
                                 .build();
-                    }
-                    throw new InvalidTokenException();
-                })
-                .orElseThrow(InvalidTokenException::new);
+                    })
+                    .orElseThrow(InvalidTokenException::new);
+        }
+        throw new InvalidTokenException();
     }
 
     @Override
     public void logout(HttpServletRequest request) {
-
         String jwt = jwtService.extractTokenFromRequest(request);
         var storedToken = tokenRepository.findByTokenValue(jwt)
                 .orElse(null);

@@ -1,7 +1,6 @@
 package org.teamchallenge.bookshop.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.teamchallenge.bookshop.dto.OAuth2UserInfo;
 import org.teamchallenge.bookshop.model.request.AuthRequest;
 import org.teamchallenge.bookshop.model.request.AuthenticationResponse;
+import org.teamchallenge.bookshop.model.request.RefreshTokenRequest;
 import org.teamchallenge.bookshop.model.request.RegisterRequest;
 import org.teamchallenge.bookshop.service.AuthService;
 import org.teamchallenge.bookshop.service.OAuth2Service;
@@ -38,9 +38,9 @@ public class AuthenticationController {
     }
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponse> refreshToken(
-            HttpServletRequest request
+            @RequestBody RefreshTokenRequest refreshTokenRequest
     ) {
-        return ResponseEntity.ok(authService.refreshToken(request));
+        return ResponseEntity.ok(authService.refreshToken(refreshTokenRequest));
     }
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {

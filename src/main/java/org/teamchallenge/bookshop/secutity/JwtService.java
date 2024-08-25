@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class JwtService {
     private final TokenRepository tokenRepository;
     private final SecretKey signingKey;
@@ -55,16 +53,23 @@ public class JwtService {
                 .compact();
     }
     public String extractUsername(String token) {
-        return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload().getSubject();
+        try {
+            return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload().getSubject();
+        } catch (JwtException e) {
+            return null;
+        }
     }
 
     public boolean isTokenValid(String token) {
         try {
             Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token);
             return tokenRepository.findByTokenValue(token)
-                    .map(storedToken -> !storedToken.isRevoked()
-                                        && !storedToken.isExpired()
-                                        && storedToken.getExpiryDate().isAfter(LocalDateTime.now()))
+                    .map(storedToken -> {
+                        boolean notRevoked = !storedToken.isRevoked();
+                        boolean notExpired = !storedToken.isExpired();
+                        boolean notPassedExpiryDate = storedToken.getExpiryDate().isAfter(LocalDateTime.now());
+                        return notRevoked && notExpired && notPassedExpiryDate;
+                    })
                     .orElse(false);
         } catch (JwtException e) {
             return false;
@@ -87,10 +92,9 @@ public class JwtService {
         Token token = Token.builder()
                 .user(user)
                 .tokenValue(jwtToken)
-                .tokenType(Token.TokenType.BEARER)
                 .expired(false)
                 .revoked(false)
-                .expiryDate(calculateExpiryDate())
+                .expiryDate(LocalDateTime.now().plusMinutes(15))
                 .build();
         tokenRepository.save(token);
     }
@@ -105,9 +109,7 @@ public class JwtService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    public LocalDateTime calculateExpiryDate() {
-        return LocalDateTime.now().plusMinutes(15);
-    }
+
 
     public String extractTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
