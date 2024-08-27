@@ -19,6 +19,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static org.teamchallenge.bookshop.constants.ValidationConstants.ACCESS_TOKEN_NOT_FOUND;
+import static org.teamchallenge.bookshop.constants.ValidationConstants.REFRESH_TOKEN_NOT_FOUND;
+
 @Service
 public class JwtService {
     private final TokenRepository tokenRepository;
@@ -26,8 +29,16 @@ public class JwtService {
 
     private static final String SECRET_KEY = Optional.ofNullable(System.getenv("SECRET_KEY"))
             .orElseThrow(SecretKeyNotFoundException::new);
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15;
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+
+    private static final long ACCESS_EXPIRATION_TOKEN = Long.parseLong(
+            Optional.ofNullable(System.getenv("ACCESS_EXPIRATION_TOKEN")).orElse(ACCESS_TOKEN_NOT_FOUND)
+    );
+
+    private static final long REFRESH_EXPIRATION_TOKEN = Long.parseLong(
+            Optional.ofNullable(System.getenv("REFRESH_EXPIRATION_TOKEN")).orElse(REFRESH_TOKEN_NOT_FOUND)
+    );
+
+
     @Autowired
     public JwtService(TokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
@@ -36,11 +47,11 @@ public class JwtService {
     }
 
     public String generateAccessToken(User user) {
-        return buildToken(user, ACCESS_TOKEN_EXPIRATION);
+        return buildToken(user, ACCESS_EXPIRATION_TOKEN);
     }
 
     public String generateRefreshToken(User user) {
-        return buildToken(user, REFRESH_TOKEN_EXPIRATION);
+        return buildToken(user, REFRESH_EXPIRATION_TOKEN);
     }
 
     private String buildToken(User user, long expiration) {

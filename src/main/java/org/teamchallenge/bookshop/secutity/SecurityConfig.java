@@ -24,6 +24,9 @@ import org.teamchallenge.bookshop.service.OAuth2Service;
 
 import java.io.IOException;
 
+import static org.teamchallenge.bookshop.constants.ValidationConstants.AUTHENTICATION_FAILED;
+import static org.teamchallenge.bookshop.constants.ValidationConstants.UNAUTHORIZED;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -43,6 +46,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/api/v1/book/**", "/api/v1/cart/**",
+                                "/api/v1/user/**",
                                 "/api/v1/book/category/all")
                           .permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
@@ -54,6 +58,16 @@ public class SecurityConfig {
                         )
                         .permitAll()
                         .successHandler(this::oauth2AuthenticationSuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write(AUTHENTICATION_FAILED);
+                        })
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write(UNAUTHORIZED);
+                        })
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

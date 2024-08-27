@@ -30,7 +30,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+
         final String jwt = jwtService.extractTokenFromRequest(request);
+
         if (jwt == null) {
             filterChain.doFilter(request, response);
             return;

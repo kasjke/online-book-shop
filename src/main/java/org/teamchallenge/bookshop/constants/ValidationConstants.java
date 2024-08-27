@@ -40,4 +40,8 @@ public interface ValidationConstants {
     String UNSUPPORTED_PROVIDER = "Unsupported provider: ";
     String PAYMENT_NOT_FOUND = "Payment not found";
     String OLD_PASSWORD_INCORRECT = "Old password is incorrect!";
+    String ACCESS_TOKEN_NOT_FOUND = "Access token not found";
+    String REFRESH_TOKEN_NOT_FOUND = "Refresh token not found";
+    String AUTHENTICATION_FAILED = "Authentication failed";
+    String UNAUTHORIZED = "Unauthorized";
 }
