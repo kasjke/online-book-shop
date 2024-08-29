@@ -64,7 +64,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public void resetPassword(PasswordResetDto resetDto) {
         User user = userService.getAuthenticatedUser();
-        if(passwordEncoder.matches(resetDto.getOldPassword(), user.getPassword())) {
+        if (passwordEncoder.matches(resetDto.getOldPassword(), user.getPassword())) {
             user.setPassword(passwordEncoder.encode(resetDto.getNewPassword()));
             userRepository.save(user);
         } else {
