@@ -10,8 +10,10 @@ import org.teamchallenge.bookshop.mapper.ProfileMapper;
 import org.teamchallenge.bookshop.mapper.UserMapper;
 import org.teamchallenge.bookshop.model.Profile;
 import org.teamchallenge.bookshop.model.User;
+import org.teamchallenge.bookshop.model.request.UpdateEmailResponse;
 import org.teamchallenge.bookshop.repository.ProfileRepository;
 import org.teamchallenge.bookshop.repository.UserRepository;
+import org.teamchallenge.bookshop.secutity.JwtService;
 import org.teamchallenge.bookshop.service.ProfileService;
 import org.teamchallenge.bookshop.service.UserService;
 
@@ -24,10 +26,12 @@ public class ProfileServiceImpl implements ProfileService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
 
     @Override
     public ProfileUpdateDto updateProfile(ProfileUpdateDto profileUpdateDto) {
         User user = userService.getAuthenticatedUser();
+
         Profile profile = user.getProfile();
         if (profile == null) {
             profile = new Profile();
@@ -40,21 +44,17 @@ public class ProfileServiceImpl implements ProfileService {
         if (profileUpdateDto.getLastName() == null) {
             profileUpdateDto.setLastName(user.getSurname());
         }
-        if (profileUpdateDto.getEmail() == null) {
-            profileUpdateDto.setEmail(user.getEmail());
-        }
         if (profileUpdateDto.getPhoneNumber() == null) {
             profileUpdateDto.setPhoneNumber(user.getPhoneNumber());
         }
+
         profileMapper.updateProfileFromDto(profileUpdateDto, profile);
         userMapper.updateUserFromProfileDto(profileUpdateDto, user);
-
         Profile savedProfile = profileRepository.save(profile);
-        userRepository.save(user);
+      userRepository.save(user);
 
         return profileMapper.toProfileUpdateDto(savedProfile);
     }
-
     @Override
     public ProfileUpdateDto getUserData() {
         User user = userService.getAuthenticatedUser();
@@ -72,5 +72,24 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
+    public UpdateEmailResponse updateEmail(String email) {
+        User user =userService.getAuthenticatedUser();
 
+        user.setEmail(email);
+        userRepository.save(user);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        jwtService.revokeAllUserTokens(user);
+        jwtService.saveUserToken(user, accessToken);
+
+        return UpdateEmailResponse.builder()
+                .newEmail(user.getEmail())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
 }
+
+

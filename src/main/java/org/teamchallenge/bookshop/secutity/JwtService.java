@@ -63,6 +63,7 @@ public class JwtService {
                 .signWith(signingKey)
                 .compact();
     }
+
     public String extractUsername(String token) {
         try {
             return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload().getSubject();
@@ -86,6 +87,7 @@ public class JwtService {
             return false;
         }
     }
+
     public boolean isTokenExpired(String token) {
         try {
             Date expiration = Jwts.parser()
@@ -99,6 +101,7 @@ public class JwtService {
             return true;
         }
     }
+
     public void saveUserToken(User user, String jwtToken) {
         Token token = Token.builder()
                 .user(user)
@@ -109,6 +112,7 @@ public class JwtService {
                 .build();
         tokenRepository.save(token);
     }
+
     public void revokeAllUserTokens(User user) {
         List<Token> validUserTokens = tokenRepository.findAllValidTokenByUser(user);
         if (validUserTokens.isEmpty())
@@ -121,7 +125,6 @@ public class JwtService {
     }
 
 
-
     public String extractTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
@@ -129,4 +132,6 @@ public class JwtService {
         }
         return null;
     }
+
+
 }

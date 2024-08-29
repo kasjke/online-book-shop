@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.teamchallenge.bookshop.dto.PasswordResetDto;
 import org.teamchallenge.bookshop.dto.ProfileUpdateDto;
+import org.teamchallenge.bookshop.model.request.UpdateEmailResponse;
 import org.teamchallenge.bookshop.service.ProfileService;
 
 @RestController
@@ -74,5 +75,21 @@ public class ProfileController {
             @RequestBody(description = "Password reset data", required = true, content = @Content(schema = @Schema(implementation = PasswordResetDto.class)))
             @org.springframework.web.bind.annotation.RequestBody PasswordResetDto resetDto) {
         profileService.resetPassword(resetDto);
+    }
+    @Operation(summary = "Update user email in profile", description = "Allows users to update their email.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "email updated successfully",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid input data",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user is not authenticated",
+                    content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content)
+    })
+    @PatchMapping("/update-email")
+    public ResponseEntity<UpdateEmailResponse> updateEmail(@RequestParam String email) {
+        UpdateEmailResponse response = profileService.updateEmail(email);
+        return ResponseEntity.ok(response);
     }
 }
