@@ -55,20 +55,12 @@ public class CartController {
             description = "Calculates the total price of items in the cart, applying any available discounts",
             security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/total")
-    public ResponseEntity<BigDecimal> calculateTotalPrice() {
+    public ResponseEntity<BigDecimal> calculateTotalPrice(
+            @Parameter(description = "Type of discount to apply")
+            @RequestParam(value = "discount", defaultValue = "NONE") Discount discount) {
+        cartService.applyDiscount(discount);
         BigDecimal totalPrice = cartService.calculateTotalPriceWithDiscount();
         return ResponseEntity.ok(totalPrice);
-    }
-
-    @Operation(summary = "Apply discount to cart",
-            description = "Applies a discount to the items in the cart",
-            security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping("/applyDiscount")
-    public ResponseEntity<Void> applyDiscount(
-            @Parameter(description = "Type of discount to apply")
-            @RequestParam Discount discount) {
-        cartService.applyDiscount(discount);
-        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Delete a book from cart",
