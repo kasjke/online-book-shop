@@ -11,7 +11,6 @@ import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.UserDto;
 import org.teamchallenge.bookshop.dto.UserTestDto;
 import org.teamchallenge.bookshop.exception.UserAlreadyExistsException;
-import org.teamchallenge.bookshop.exception.UserNotAuthenticatedException;
 import org.teamchallenge.bookshop.exception.UserNotFoundException;
 import org.teamchallenge.bookshop.mapper.BookMapper;
 import org.teamchallenge.bookshop.mapper.UserMapper;
@@ -97,8 +96,8 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDto getUserByToken(String jwt) {
-        String username = jwtService.extractUsername(jwt);
-        User user = userRepository.findByEmail(username)
+        String username = String.valueOf(jwtService.extractUserId(jwt));
+        User user = userRepository.findById(Long.valueOf(username))
                 .orElseThrow(UserNotFoundException::new);
         return userMapper.entityToDto(user);
     }
@@ -135,7 +134,7 @@ public class UserServiceImpl implements UserService {
 
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        return findUserByEmail(email).orElseThrow(UserNotAuthenticatedException::new);
+        String userId = authentication.getName();
+        return userRepository.findById(Long.valueOf(userId)).get();
     }
 }

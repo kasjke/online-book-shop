@@ -11,6 +11,7 @@ import org.teamchallenge.bookshop.model.User;
 import org.teamchallenge.bookshop.repository.UserRepository;
 
 import java.util.Collections;
+
 @Service
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetailsService {
@@ -25,16 +26,24 @@ public class UserDetailsImpl implements UserDetailsService {
 
         return buildUserDetails(user);
     }
-    private UserDetails buildUserDetails(User user) {
-        String emailOrPhone = user.getEmail() != null ? user.getEmail() : user.getPhoneNumber();
 
+    @Transactional
+    public UserDetails loadUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        return buildUserDetails(user);
+    }
+
+    private UserDetails buildUserDetails(User user) {
         return new org.springframework.security.core.userdetails.User(
-                emailOrPhone,
+                String.valueOf(user.getId()),
                 user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()))
         );
     }
-
-
-
 }
+
+
+
+
+

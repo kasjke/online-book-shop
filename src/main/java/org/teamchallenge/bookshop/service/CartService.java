@@ -12,13 +12,13 @@ public interface CartService {
 
     CartDto getCartByUser();
 
-    void addBookToCart(long bookId);
+    CartItemsResponseDto addBookToCart(long bookId);
 
     @Transactional
-    CartItemsResponseDto updateQuantity(long bookId, String operation, Integer quantity);
+    CartItemsResponseDto updateQuantity(long bookId, Integer quantity);
 
     @Transactional
-    void deleteBookFromCart(long bookId);
+    CartItemsResponseDto deleteBookFromCart(long bookId);
 
     BigDecimal calculateTotalPriceWithDiscount();
 

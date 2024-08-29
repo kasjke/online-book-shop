@@ -84,7 +84,8 @@ public class SecurityConfig {
         userInfo.setName(oAuth2User.getName());
         userInfo.setEmail(oAuth2User.getEmail());
         userInfo.setProvider(oAuth2User.getProvider());
-        userInfo.setProviderId(oAuth2User.getProviderId());
+        String providerId = (String) oAuth2User.getAttributes().get("sub");
+        userInfo.setProviderId(providerId);
 
         AuthenticationResponse authResponse = oAuth2Service.processOAuth2Authentication(userInfo);
 

@@ -99,13 +99,13 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidTokenException();
         }
 
-        final String userEmail = jwtService.extractUsername(refreshToken);
+        final Long userId = jwtService.extractUserId(refreshToken);
 
-        if (userEmail == null) {
+        if (userId == null) {
             throw new InvalidTokenException();
         }
         if (!jwtService.isTokenExpired(refreshToken)) {
-            return userRepository.findByEmail(userEmail)
+            return userRepository.findById(userId)
                     .map(user -> {
                         String newAccessToken = jwtService.generateAccessToken(user);
                         String newRefreshToken = jwtService.generateRefreshToken(user);
@@ -121,6 +121,7 @@ public class AuthServiceImpl implements AuthService {
         }
         throw new InvalidTokenException();
     }
+
 
     @Override
     public void logout(HttpServletRequest request) {

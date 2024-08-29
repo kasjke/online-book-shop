@@ -47,31 +47,30 @@ public class JwtService {
     }
 
     public String generateAccessToken(User user) {
-        return buildToken(user, ACCESS_EXPIRATION_TOKEN);
+        return buildToken(user.getId(), ACCESS_EXPIRATION_TOKEN);
     }
 
     public String generateRefreshToken(User user) {
-        return buildToken(user, REFRESH_EXPIRATION_TOKEN);
+        return buildToken(user.getId(), REFRESH_EXPIRATION_TOKEN);
     }
 
-    private String buildToken(User user, long expiration) {
+    private String buildToken(long userId, long expiration) {
         return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("userId", user.getId())
+                .subject(String.valueOf(userId))
+                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(signingKey)
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public Long extractUserId(String token) {
         try {
-            return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload().getSubject();
+            return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload().get("userId", Long.class);
         } catch (JwtException e) {
             return null;
         }
     }
-
     public boolean isTokenValid(String token) {
         try {
             Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token);

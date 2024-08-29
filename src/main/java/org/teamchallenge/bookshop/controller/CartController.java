@@ -33,11 +33,10 @@ public class CartController {
             description = "Adds a book to the user's cart using the book ID",
             security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/add")
-    public ResponseEntity<Void> addBookToCart(
+    public ResponseEntity<CartItemsResponseDto> addBookToCart(
             @Parameter(description = "ID of the book to add to the cart")
             @RequestParam long bookId) {
-        cartService.addBookToCart(bookId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(cartService.addBookToCart(bookId));
     }
 
     @Operation(summary = "Update quantity of a book in cart",
@@ -47,11 +46,9 @@ public class CartController {
     public ResponseEntity<CartItemsResponseDto> updateBookQuantityInCart(
             @Parameter(description = "ID of the book to update")
             @RequestParam long bookId,
-            @Parameter(description = "Operation: '+' to increase, '-' to decrease, any other value to set specific quantity")
-            @RequestParam(required = false) String operation,
             @Parameter(description = "New quantity of the book")
             @RequestParam(required = false) Integer quantity) {
-        return ResponseEntity.ok(cartService.updateQuantity(bookId, operation, quantity));
+        return ResponseEntity.ok(cartService.updateQuantity(bookId,quantity));
     }
 
     @Operation(summary = "Calculate total price of cart",
@@ -78,10 +75,10 @@ public class CartController {
             description = "Deletes a book from the user's cart using the book ID",
             security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteBookFromCart(
+    public ResponseEntity<CartItemsResponseDto> deleteBookFromCart(
             @Parameter(description = "ID of the book to delete from the cart")
             @RequestParam long bookId) {
         cartService.deleteBookFromCart(bookId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(cartService.deleteBookFromCart(bookId));
     }
 }

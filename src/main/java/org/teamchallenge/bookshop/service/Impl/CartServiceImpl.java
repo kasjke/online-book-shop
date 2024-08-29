@@ -60,7 +60,7 @@ public class CartServiceImpl implements CartService {
     }
 
 
-    public void addBookToCart(long bookId) {
+    public CartItemsResponseDto  addBookToCart(long bookId) {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(CartNotFoundException::new);
@@ -70,27 +70,24 @@ public class CartServiceImpl implements CartService {
 
         cart.getItems().merge(book, 1, Integer::sum);
         cartRepository.save(cart);
+        CartItemsResponseDto response = new CartItemsResponseDto();
+        response.setItems(cartMapper.mapCartItemsToDto(cart.getItems()));
+        response.setTotalPrice(calculateTotalPrice(cart));
+
+        return response;
     }
 
     @Override
     @Transactional
-    public CartItemsResponseDto updateQuantity(long bookId, String operation, Integer quantity) {
+    public CartItemsResponseDto updateQuantity(long bookId, Integer quantity) {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(CartNotFoundException::new);
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(BookNotFoundException::new);
-        int currentQuantity = cart.getItems().getOrDefault(book, 0);
-        int newQuantity;
-        if ("1".equals(operation)) {
-            newQuantity = currentQuantity + 1;
-        } else if ("-1".equals(operation)) {
-            newQuantity = Math.max(1, currentQuantity - 1);
-        } else {
-            newQuantity = quantity != null ? Math.max(1, quantity) : currentQuantity;
-        }
 
-        cart.getItems().put(book, newQuantity);
+
+        cart.getItems().put(book, quantity);
         cart.setLastModified(LocalDate.now());
         cartRepository.save(cart);
 
@@ -108,12 +105,16 @@ public class CartServiceImpl implements CartService {
     }
     @Override
     @Transactional
-    public void deleteBookFromCart(long bookId) {
+    public CartItemsResponseDto deleteBookFromCart(long bookId) {
         User user = userService.getAuthenticatedUser();
         Cart cart = user.getCart();
         Book book = bookRepository.findById(bookId).orElseThrow(NotFoundException::new);
         deleteBook(cart, book);
         cartRepository.save(cart);
+        CartItemsResponseDto response = new CartItemsResponseDto();
+        response.setItems(cartMapper.mapCartItemsToDto(cart.getItems()));
+        response.setTotalPrice(calculateTotalPrice(cart));
+        return response;
     }
 
 

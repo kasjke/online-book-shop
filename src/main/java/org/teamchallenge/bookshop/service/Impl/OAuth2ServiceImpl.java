@@ -20,7 +20,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
     @Override
     public AuthenticationResponse processOAuth2Authentication(OAuth2UserInfo oauth2UserInfo) {
-        User user = userRepository.findByEmail(oauth2UserInfo.getEmail())
+        User user = userRepository.findByProviderId(oauth2UserInfo.getProviderId())
                 .map(existingUser -> updateExistingUser(existingUser, oauth2UserInfo))
                 .orElseGet(() -> userCreationService.createNewUser(oauth2UserInfo));
 

@@ -73,8 +73,8 @@ public class ProfileController {
     @PostMapping("/reset-password")
     public void resetPasswordProfile(
             @RequestBody(description = "Password reset data", required = true, content = @Content(schema = @Schema(implementation = PasswordResetDto.class)))
-            @org.springframework.web.bind.annotation.RequestBody PasswordResetDto resetDto) {
-        profileService.resetPassword(resetDto);
+          String password) {
+        profileService.resetPassword(password);
     }
     @Operation(summary = "Update user email in profile", description = "Allows users to update their email.")
     @ApiResponses(value = {
