@@ -92,7 +92,7 @@ public class CartServiceImpl implements CartService {
         cartRepository.save(cart);
 
         CartItemsResponseDto response = new CartItemsResponseDto();
-        response.setItems(cartMapper.mapCartItemsToDto(cart.getItems()));
+        response.setItems(cartMapper.mapCartItemsPriceToDtoWithoutQuantity(cart.getItems()));
         response.setTotalPrice(calculateTotalPrice(cart));
 
         return response;

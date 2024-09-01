@@ -43,6 +43,25 @@ public interface CartMapper {
                         BookDto::getQuantity
                 ));
     }
+    @Named("mapCartItemsPriceToDtoWithoutQuantity")
+    default List<CartItemDto> mapCartItemsPriceToDtoWithoutQuantity(Map<Book, Integer> items) {
+        if (items == null) {
+            return java.util.Collections.emptyList();
+        }
+        return items.entrySet().stream()
+                .map(entry -> {
+                    Book book = entry.getKey();
+                    CartItemDto dto = new CartItemDto();
+                    dto.setId(book.getId());
+                    dto.setTitle(book.getTitle());
+                    dto.setQuantity(entry.getValue());
+                    dto.setPrice(book.getPrice()); // Тут тільки ціна однієї книги без множення на кількість
+                    dto.setAuthors(book.getAuthors());
+                    dto.setTitleImage(book.getTitleImage());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
     @Named("mapCartItemsToDto")
     default List<CartItemDto> mapCartItemsToDto(Map<Book, Integer> items) {
         if (items == null) {
