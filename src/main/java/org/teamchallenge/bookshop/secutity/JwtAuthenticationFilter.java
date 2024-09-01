@@ -32,7 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         final String jwt = jwtService.extractTokenFromRequest(request);
-
         if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
@@ -42,7 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, TOKEN_EXPIRED);
             return;
         }
-
         Long userId = jwtService.extractUserId(jwt);
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = ((UserDetailsImpl) userDetailsService).loadUserById(userId);

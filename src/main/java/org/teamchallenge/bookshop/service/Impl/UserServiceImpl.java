@@ -17,10 +17,10 @@ import org.teamchallenge.bookshop.mapper.UserMapper;
 import org.teamchallenge.bookshop.model.Book;
 import org.teamchallenge.bookshop.model.Cart;
 import org.teamchallenge.bookshop.model.User;
+import org.teamchallenge.bookshop.repository.BookRepository;
 import org.teamchallenge.bookshop.repository.TokenRepository;
 import org.teamchallenge.bookshop.repository.UserRepository;
 import org.teamchallenge.bookshop.secutity.JwtService;
-import org.teamchallenge.bookshop.service.BookService;
 import org.teamchallenge.bookshop.service.UserService;
 
 import java.time.LocalDate;
@@ -30,13 +30,13 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final BookService bookService;
     private final UserRepository userRepository;
     private final BookMapper bookMapper;
     private final UserMapper userMapper;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
+    private final BookRepository bookRepository;
 
     @Override
     public List<BookDto> getFavouriteBooks() {
@@ -78,13 +78,14 @@ public class UserServiceImpl implements UserService {
     public void addBookToFavourites(Long id) {
         User user = getAuthenticatedUser();
         List<Book> list = user.getFavourites();
-        Book book = bookMapper.dtoToEntity(bookService.getBookById(id));
+        Book book = bookRepository.findById(id).get();
         if (!list.contains(book)) {
             list.add(book);
         }
         user.setFavourites(list);
         userRepository.save(user);
     }
+
 
     @Override
     public void deleteBookFromFavourites(Long id) {
