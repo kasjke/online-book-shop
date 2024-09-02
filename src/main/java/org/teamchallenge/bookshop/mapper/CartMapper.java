@@ -20,9 +20,6 @@ public interface CartMapper {
     @Mapping(target = "items", source = "items", qualifiedByName = "mapToList")
     CartDto entityToDto(Cart cart);
 
-    @Mapping(target = "items", source = "items", qualifiedByName = "listToMap")
-    Cart dtoToEntity(CartDto cartDto);
-
     @Named("mapToList")
     default List<BookDto> mapToList(Map<Book, Integer> map) {
         return map.entrySet()
@@ -55,7 +52,7 @@ public interface CartMapper {
                     dto.setId(book.getId());
                     dto.setTitle(book.getTitle());
                     dto.setQuantity(entry.getValue());
-                    dto.setPrice(book.getPrice()); // Тут тільки ціна однієї книги без множення на кількість
+                    dto.setPrice(book.getPrice());
                     dto.setAuthors(book.getAuthors());
                     dto.setTitleImage(book.getTitleImage());
                     return dto;

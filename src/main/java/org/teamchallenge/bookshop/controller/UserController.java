@@ -48,7 +48,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @PostMapping("/favourites/delete")
+    @DeleteMapping("/favourites/delete")
     public ResponseEntity<Void> deleteBookFromFavourites(@RequestParam Long id) {
         userService.deleteBookFromFavourites(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

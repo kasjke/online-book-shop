@@ -140,7 +140,7 @@ public class CartServiceImpl implements CartService {
                 .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if (cart.getDiscount() != null && cart.getDiscount() != Discount.NONE) {
+        if (cart.getDiscount() != null && cart.getDiscount() != Discount.NO_DISCOUNT) {
             int discountPercentage = cart.getDiscount().getPercentage();
             BigDecimal discountAmount = totalPrice.multiply(BigDecimal.valueOf(discountPercentage))
                     .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);

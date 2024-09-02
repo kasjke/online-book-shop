@@ -25,6 +25,5 @@ public class Cart {
     @Column(name = "count")
     private Map<Book, Integer> items = new HashMap<>();
     @Enumerated(EnumType.STRING)
-    private Discount discount = Discount.NONE;
-
+    private Discount discount = Discount.NO_DISCOUNT;
 }

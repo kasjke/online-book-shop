@@ -4,15 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum Discount {
-    NONE(0),
-    FIVE_PERCENT(5),
-    TEN_PERCENT(10),
-    FIFTEEN_PERCENT(15);
+    NO_DISCOUNT(0),
+    DISCOUNT_5_PERCENT(5),
+    DISCOUNT_10_PERCENT(10),
+    DISCOUNT_15_PERCENT(15);
 
     private final int percentage;
 
     Discount(int percentage) {
         this.percentage = percentage;
     }
-
 }
