@@ -70,9 +70,9 @@ public class ProfileController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content)
     })
-    @PostMapping("/reset-password")
+    @PutMapping("/reset-password")
     public void resetPasswordProfile(
-            @RequestBody(description = "Password reset data", required = true, content = @Content(schema = @Schema(implementation = PasswordResetDto.class)))
+            @RequestParam()
           String password) {
         profileService.resetPassword(password);
     }
