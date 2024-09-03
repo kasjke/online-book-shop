@@ -45,7 +45,9 @@ public class ProfileServiceImpl implements ProfileService {
         if (profileUpdateDto.getPhoneNumber() == null) {
             profileUpdateDto.setPhoneNumber(user.getPhoneNumber());
         }
-
+        if (profileUpdateDto.getEmail() == null) {
+            profileUpdateDto.setEmail(user.getEmail());
+        }
         profileMapper.updateProfileFromDto(profileUpdateDto, profile);
         userMapper.updateUserFromProfileDto(profileUpdateDto, user);
         Profile savedProfile = profileRepository.save(profile);
