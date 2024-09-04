@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.teamchallenge.bookshop.dto.PasswordResetDto;
 import org.teamchallenge.bookshop.dto.ProfileUpdateDto;
+import org.teamchallenge.bookshop.model.request.PasswordRequest;
 import org.teamchallenge.bookshop.model.request.UpdateEmailResponse;
 import org.teamchallenge.bookshop.service.ProfileService;
 
@@ -71,11 +72,10 @@ public class ProfileController {
                     content = @Content)
     })
     @PutMapping("/reset-password")
-    public void resetPasswordProfile(
-            @RequestParam()
-          String password) {
-        profileService.resetPassword(password);
+    public void resetPasswordProfile(@RequestBody PasswordRequest passwordRequest) {
+        profileService.resetPassword(passwordRequest);
     }
+
     @Operation(summary = "Update user email in profile", description = "Allows users to update their email.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "email updated successfully",

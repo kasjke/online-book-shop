@@ -1,6 +1,7 @@
 package org.teamchallenge.bookshop.service;
 
 import org.teamchallenge.bookshop.dto.ProfileUpdateDto;
+import org.teamchallenge.bookshop.model.request.PasswordRequest;
 import org.teamchallenge.bookshop.model.request.UpdateEmailResponse;
 
 public interface ProfileService {
@@ -8,7 +9,7 @@ public interface ProfileService {
 
     ProfileUpdateDto getUserData();
 
-    void resetPassword(String password);
+     void resetPassword(PasswordRequest password);
 
     UpdateEmailResponse updateEmail(String email);
 }

@@ -8,6 +8,7 @@ import org.teamchallenge.bookshop.mapper.ProfileMapper;
 import org.teamchallenge.bookshop.mapper.UserMapper;
 import org.teamchallenge.bookshop.model.Profile;
 import org.teamchallenge.bookshop.model.User;
+import org.teamchallenge.bookshop.model.request.PasswordRequest;
 import org.teamchallenge.bookshop.model.request.UpdateEmailResponse;
 import org.teamchallenge.bookshop.repository.ProfileRepository;
 import org.teamchallenge.bookshop.repository.UserRepository;
@@ -62,9 +63,9 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public void resetPassword(String password) {
+    public void resetPassword(PasswordRequest password) {
         User user = userService.getAuthenticatedUser();
-            user.setPassword(passwordEncoder.encode(password));
+            user.setPassword(passwordEncoder.encode(password.getPassword()));
             userRepository.save(user);
     }
 
