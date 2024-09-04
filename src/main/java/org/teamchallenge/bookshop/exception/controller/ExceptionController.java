@@ -75,11 +75,11 @@ public class ExceptionController {
     }
     @ExceptionHandler(CartIdNotFoundException.class)
     public ResponseEntity<ErrorObject> cartIdNotFound(CartIdNotFoundException e) {
-        return handleException(e, ERROR_WITH_DROPBOX_COMMUNICATION, HttpStatus.NOT_FOUND);
+        return handleException(e, CART_ID_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(OrderIdNotFoundException.class)
     public ResponseEntity<ErrorObject> orderIdNotFound(OrderIdNotFoundException e) {
-        return handleException(e, ERROR_WITH_DROPBOX_COMMUNICATION, HttpStatus.NOT_FOUND);
+        return handleException(e, ORDER_ID_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(ImageUploadException.class)
     public ResponseEntity<ErrorObject> imageUploadExceptionHandler(ImageUploadException e) {
@@ -99,7 +99,7 @@ public class ExceptionController {
     }
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ErrorObject> invalidResetToken(InvalidTokenException e) {
-        return handleException(e, INVALID_RESET_TOKEN, HttpStatus.BAD_REQUEST);
+        return handleException(e, INVALID_RESET_TOKEN, HttpStatus.UNAUTHORIZED);
     }
     @ExceptionHandler(ErrorResponseException.class)
     public ResponseEntity<ErrorObject> handleErrorResponse(ErrorResponseException ex) {
