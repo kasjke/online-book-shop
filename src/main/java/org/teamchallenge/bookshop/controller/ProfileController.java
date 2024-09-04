@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.teamchallenge.bookshop.dto.PasswordRequestDto;
 import org.teamchallenge.bookshop.dto.PasswordResetDto;
 import org.teamchallenge.bookshop.dto.ProfileUpdateDto;
 import org.teamchallenge.bookshop.model.request.UpdateEmailResponse;
@@ -72,9 +73,8 @@ public class ProfileController {
     })
     @PutMapping("/reset-password")
     public void resetPasswordProfile(
-            @RequestParam()
-          String password) {
-        profileService.resetPassword(password);
+            @RequestBody PasswordRequestDto passwordRequest) {
+        profileService.resetPassword(passwordRequest.getPassword());
     }
     @Operation(summary = "Update user email in profile", description = "Allows users to update their email.")
     @ApiResponses(value = {
