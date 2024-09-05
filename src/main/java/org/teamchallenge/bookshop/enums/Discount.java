@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum Discount {
-    NO_DISCOUNT(0),
-    DISCOUNT_5_PERCENT(5),
-    DISCOUNT_10_PERCENT(10),
-    DISCOUNT_15_PERCENT(15);
+    NODISCOUNT(0),
+    DISCOUNT5PERCENT(5),
+    DISCOUNT10PERCENT(10),
+    DISCOUNT15PERCENT(15);
 
     private final int percentage;
 
