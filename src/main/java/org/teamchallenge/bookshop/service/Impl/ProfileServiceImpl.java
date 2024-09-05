@@ -63,9 +63,9 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public void resetPassword(PasswordRequest password) {
+    public void resetPassword(PasswordRequest passwordRequest) {
         User user = userService.getAuthenticatedUser();
-            user.setPassword(passwordEncoder.encode(password.getPassword()));
+            user.setPassword(passwordEncoder.encode(passwordRequest.getPassword()));
             userRepository.save(user);
     }
 

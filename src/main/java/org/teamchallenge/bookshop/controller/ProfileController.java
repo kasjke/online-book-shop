@@ -73,7 +73,8 @@ public class ProfileController {
                     content = @Content)
     })
     @PutMapping("/reset-password")
-    public void resetPasswordProfile(@RequestBody PasswordRequest passwordRequest) {
+    public void resetPasswordProfile(@org.springframework.web.bind.annotation.RequestBody PasswordRequest passwordRequest) {
+        System.out.println("Received password: " + passwordRequest.getPassword());
         profileService.resetPassword(passwordRequest);
     }
 
