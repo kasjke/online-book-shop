@@ -57,7 +57,7 @@ public class CartController {
     @GetMapping("/total")
     public ResponseEntity<BigDecimal> calculateTotalPrice(
             @Parameter(description = "Type of discount to apply")
-            @RequestParam(value = "discount", defaultValue = "NO_DISCOUNT") Discount discount) {
+            @RequestParam(value = "discount", defaultValue = "NODISCOUNT") Discount discount) {
         cartService.applyDiscount(discount);
         BigDecimal totalPrice = cartService.calculateTotalPriceWithDiscount();
         return ResponseEntity.ok(totalPrice);

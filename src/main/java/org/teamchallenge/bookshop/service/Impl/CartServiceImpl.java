@@ -149,7 +149,7 @@ public class CartServiceImpl implements CartService {
 
         return totalPrice.setScale(2, RoundingMode.HALF_UP);
     }
-    public void applyDiscount( Discount discount) {
+    public void applyDiscount(Discount discount) {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId()).orElseThrow(CartNotFoundException::new);
         cart.setDiscount(discount);

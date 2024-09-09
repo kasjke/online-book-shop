@@ -39,6 +39,7 @@ public class Book {
     @ElementCollection
     private List<String> images;
     private int quantity;
-
+    @ManyToOne
+    private Catalog catalog;
 
 }
