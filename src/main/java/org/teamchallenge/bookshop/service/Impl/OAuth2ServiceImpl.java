@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.teamchallenge.bookshop.Oauth2.UserCreationService;
 import org.teamchallenge.bookshop.dto.OAuth2UserInfo;
+import org.teamchallenge.bookshop.model.Cart;
 import org.teamchallenge.bookshop.model.User;
 import org.teamchallenge.bookshop.model.request.AuthenticationResponse;
 import org.teamchallenge.bookshop.repository.UserRepository;
 import org.teamchallenge.bookshop.secutity.JwtService;
 import org.teamchallenge.bookshop.service.OAuth2Service;
+
+import java.time.LocalDate;
 
 
 @Service
@@ -40,6 +43,12 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         existingUser.setSurname(oauth2UserInfo.getSurname());
         existingUser.setProvider(oauth2UserInfo.getProvider());
         existingUser.setProviderId(oauth2UserInfo.getProviderId());
+        if (existingUser.getCart() == null) {
+            Cart newCart = new Cart();
+            newCart.setIsPermanent(true);
+            newCart.setLastModified(LocalDate.now());
+            existingUser.setCart(newCart);
+        }
         return userRepository.save(existingUser);
     }
 

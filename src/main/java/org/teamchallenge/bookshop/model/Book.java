@@ -41,5 +41,8 @@ public class Book {
     private int quantity;
     @ManyToOne
     private Catalog catalog;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "characteristic_id", referencedColumnName = "characteristic_id")
+    private Characteristic characteristic;
 
 }

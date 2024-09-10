@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
 import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.BookInCatalogDto;
 import org.teamchallenge.bookshop.dto.CategoryDto;
@@ -84,13 +85,13 @@ public class BookServiceImpl implements BookService {
         bookRepository.save(book);
     }
     @Override
-    public BookDto getBookById(Long id) {
+    public BookCharacteristicDto getBookById(Long id) {
         Book book = bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
         List<String> images = book.getImages();
         images.add(0, book.getTitleImage());
         book.setQuantity(1);
         book.setImages(images);
-        return bookMapper.entityToDTO(book);
+        return bookMapper.entityToBookCharacteristicDto(book);
     }
 
     @Override

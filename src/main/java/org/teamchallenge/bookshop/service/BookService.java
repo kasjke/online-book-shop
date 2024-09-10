@@ -2,6 +2,7 @@ package org.teamchallenge.bookshop.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
 import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.BookInCatalogDto;
 import org.teamchallenge.bookshop.dto.CategoryDto;
@@ -13,7 +14,7 @@ public interface BookService {
 
     void addBook(BookDto book);
 
-    BookDto getBookById(Long id);
+    BookCharacteristicDto getBookById(Long id);
 
     List<BookInCatalogDto> getBooksForSlider();
 

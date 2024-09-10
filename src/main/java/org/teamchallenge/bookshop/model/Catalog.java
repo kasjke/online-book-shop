@@ -2,7 +2,6 @@ package org.teamchallenge.bookshop.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.teamchallenge.bookshop.enums.Category;
 
@@ -20,7 +19,6 @@ public class Catalog {
     private int quantityOfBooks;
     @OneToMany(mappedBy = "catalog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Book> books = new ArrayList<>();
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "category_id")
+    @Enumerated(EnumType.STRING)
     private Category category;
 }

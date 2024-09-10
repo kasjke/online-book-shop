@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
 import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.BookInCatalogDto;
 import org.teamchallenge.bookshop.dto.CategoryDto;
@@ -58,10 +59,10 @@ public class BookController {
             )}
     )
     @GetMapping("/findById/{id}")
-    public ResponseEntity<BookDto> getBookById(
+    public ResponseEntity<BookCharacteristicDto> getBookById(
             @Parameter(required = true, in = ParameterIn.PATH)
             @PathVariable Long id) {
-        BookDto bookDto = bookService.getBookById(id);
+        BookCharacteristicDto bookDto = bookService.getBookById(id);
         return ResponseEntity.ok(bookDto);
     }
     @Operation(
