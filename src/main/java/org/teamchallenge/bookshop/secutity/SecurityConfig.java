@@ -26,6 +26,7 @@ import org.teamchallenge.bookshop.service.OAuth2Service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.teamchallenge.bookshop.constants.ValidationConstants.AUTHENTICATION_FAILED;
 import static org.teamchallenge.bookshop.constants.ValidationConstants.UNAUTHORIZED;
@@ -76,17 +77,20 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .build();
     }
-      @Bean
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:8080",
                 "https://online-book-shop-client.onrender.com",
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "https://online-book-shop-1.onrender.com",
+                "https://accounts.google.com"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
