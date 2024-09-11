@@ -60,18 +60,17 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                         .permitAll()
-                        .successHandler(this::oauth2AuthenticationSuccessHandler)
                         .failureHandler((request, response, exception) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.getWriter().write(AUTHENTICATION_FAILED);
                         })
                 )
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write(UNAUTHORIZED);
-                        })
-                )
+//                .exceptionHandling(exceptionHandling -> exceptionHandling
+//                        .authenticationEntryPoint((request, response, authException) -> {
+//                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                            response.getWriter().write(UNAUTHORIZED);
+//                        })
+//                )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider)
@@ -96,24 +95,24 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-    private void oauth2AuthenticationSuccessHandler(HttpServletRequest request,
-                                                    HttpServletResponse response,
-                                                    Authentication authentication) throws IOException {
-
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        OAuth2UserInfo userInfo = new OAuth2UserInfo();
-        userInfo.setSurname(oAuth2User.getSurname());
-        userInfo.setName(oAuth2User.getName());
-        userInfo.setEmail(oAuth2User.getEmail());
-        userInfo.setProvider(oAuth2User.getProvider());
-        String providerId = (String) oAuth2User.getAttributes().get("sub");
-        userInfo.setProviderId(providerId);
-
-        AuthenticationResponse authResponse = oAuth2Service.processOAuth2Authentication(userInfo);
-
-        response.setContentType("application/json");
-        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-        response.getWriter().write(new ObjectMapper().writeValueAsString(authResponse));
-        response.setStatus(HttpServletResponse.SC_OK);
-    }
+//    private void oauth2AuthenticationSuccessHandler(HttpServletRequest request,
+//                                                    HttpServletResponse response,
+//                                                    Authentication authentication) throws IOException {
+//
+//        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+//        OAuth2UserInfo userInfo = new OAuth2UserInfo();
+//        userInfo.setSurname(oAuth2User.getSurname());
+//        userInfo.setName(oAuth2User.getName());
+//        userInfo.setEmail(oAuth2User.getEmail());
+//        userInfo.setProvider(oAuth2User.getProvider());
+//        String providerId = (String) oAuth2User.getAttributes().get("sub");
+//        userInfo.setProviderId(providerId);
+//
+//        AuthenticationResponse authResponse = oAuth2Service.processOAuth2Authentication(userInfo);
+//
+//        response.setContentType("application/json");
+//        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+//        response.getWriter().write(new ObjectMapper().writeValueAsString(authResponse));
+//        response.setStatus(HttpServletResponse.SC_OK);
+//    }
 }
