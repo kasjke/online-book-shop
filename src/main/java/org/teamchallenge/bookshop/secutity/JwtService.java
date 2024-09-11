@@ -1,5 +1,6 @@
 package org.teamchallenge.bookshop.secutity;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -9,15 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.teamchallenge.bookshop.exception.SecretKeyNotFoundException;
+import org.teamchallenge.bookshop.exception.UserNotFoundException;
 import org.teamchallenge.bookshop.model.Token;
 import org.teamchallenge.bookshop.model.User;
 import org.teamchallenge.bookshop.repository.TokenRepository;
+import org.teamchallenge.bookshop.repository.UserRepository;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.teamchallenge.bookshop.constants.ValidationConstants.ACCESS_TOKEN_NOT_FOUND;
 import static org.teamchallenge.bookshop.constants.ValidationConstants.REFRESH_TOKEN_NOT_FOUND;
@@ -26,6 +27,7 @@ import static org.teamchallenge.bookshop.constants.ValidationConstants.REFRESH_T
 public class JwtService {
     private final TokenRepository tokenRepository;
     private final SecretKey signingKey;
+    private final UserRepository userRepository;
 
     private static final String SECRET_KEY = Optional.ofNullable(System.getenv("SECRET_KEY"))
             .orElseThrow(SecretKeyNotFoundException::new);
@@ -40,40 +42,57 @@ public class JwtService {
 
 
     @Autowired
-    public JwtService(TokenRepository tokenRepository) {
+    public JwtService(TokenRepository tokenRepository, UserRepository userRepository) {
         this.tokenRepository = tokenRepository;
+        this.userRepository = userRepository;
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateAccessToken(User user) {
-        return buildToken(getUserIdentifier(user), ACCESS_EXPIRATION_TOKEN);
+        return buildToken(user, ACCESS_EXPIRATION_TOKEN);
     }
 
     public String generateRefreshToken(User user) {
-        return buildToken(getUserIdentifier(user), REFRESH_EXPIRATION_TOKEN);
+        return buildToken(user, REFRESH_EXPIRATION_TOKEN);
     }
 
-    private String getUserIdentifier(User user) {
-        return user.getId() == 0 ? user.getProviderId() : String.valueOf(user.getId());
-    }
+    private String buildToken(User user, long expiration) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        if (user.getProviderId() != null) {
+            claims.put("providerId", user.getProviderId());
+        }
+        claims.put("email", user.getEmail());
+        claims.put("role", user.getRole().name());
 
-    private String buildToken(String subject, long expiration) {
         return Jwts.builder()
-                .subject(subject)
-                .claim("userId", subject)
+                .claims(claims)
+                .subject(getUserIdentifier(user))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(signingKey)
                 .compact();
     }
 
+    private String getUserIdentifier(User user) {
+        return user.getId() == 0 ? user.getProviderId() : String.valueOf(user.getId());
+    }
 
     public Long extractUserId(String token) {
-        try {
-            return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload().get("userId", Long.class);
-        } catch (JwtException e) {
-            return null;
+        Claims claims = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
+        String userIdentifier = claims.getSubject();
+
+        if (userIdentifier.matches("\\d+")) {
+            return Long.parseLong(userIdentifier);
+        } else {
+            return userRepository.findByProviderId(userIdentifier)
+                    .map(User::getId)
+                    .orElseGet(() ->
+                            userRepository.findByEmail(userIdentifier)
+                                    .map(User::getId)
+                                    .orElseThrow(UserNotFoundException::new)
+                    );
         }
     }
     public boolean isTokenValid(String token) {

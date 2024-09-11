@@ -7,7 +7,8 @@ public enum Discount {
     NODISCOUNT(0),
     DISCOUNT5PERCENT(5),
     DISCOUNT10PERCENT(10),
-    DISCOUNT15PERCENT(15);
+    DISCOUNT15PERCENT(15),
+    GIFTDISCOUNT(25);
 
     private final int percentage;
 
