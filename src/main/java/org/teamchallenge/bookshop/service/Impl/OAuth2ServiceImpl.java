@@ -29,7 +29,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-
+        jwtService.revokeAllUserTokens(user);
         jwtService.saveUserToken(user, accessToken);
 
         return AuthenticationResponse.builder()

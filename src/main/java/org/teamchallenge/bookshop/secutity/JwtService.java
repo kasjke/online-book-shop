@@ -47,22 +47,27 @@ public class JwtService {
     }
 
     public String generateAccessToken(User user) {
-        return buildToken(user.getId(), ACCESS_EXPIRATION_TOKEN);
+        return buildToken(getUserIdentifier(user), ACCESS_EXPIRATION_TOKEN);
     }
 
     public String generateRefreshToken(User user) {
-        return buildToken(user.getId(), REFRESH_EXPIRATION_TOKEN);
+        return buildToken(getUserIdentifier(user), REFRESH_EXPIRATION_TOKEN);
     }
 
-    private String buildToken(long userId, long expiration) {
+    private String getUserIdentifier(User user) {
+        return user.getId() == 0 ? user.getProviderId() : String.valueOf(user.getId());
+    }
+
+    private String buildToken(String subject, long expiration) {
         return Jwts.builder()
-                .subject(String.valueOf(userId))
-                .claim("userId", userId)
+                .subject(subject)
+                .claim("userId", subject)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(signingKey)
                 .compact();
     }
+
 
     public Long extractUserId(String token) {
         try {

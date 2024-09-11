@@ -15,7 +15,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.teamchallenge.bookshop.Oauth2.CustomOAuth2User;
 import org.teamchallenge.bookshop.Oauth2.CustomOAuth2UserService;
 import org.teamchallenge.bookshop.dto.OAuth2UserInfo;
@@ -23,6 +25,7 @@ import org.teamchallenge.bookshop.model.request.AuthenticationResponse;
 import org.teamchallenge.bookshop.service.OAuth2Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static org.teamchallenge.bookshop.constants.ValidationConstants.AUTHENTICATION_FAILED;
 import static org.teamchallenge.bookshop.constants.ValidationConstants.UNAUTHORIZED;
@@ -32,7 +35,6 @@ import static org.teamchallenge.bookshop.constants.ValidationConstants.UNAUTHORI
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CorsConfigurationSource corsConfigurationSource;
     private final CustomOAuth2UserService customOAuth2UserService;
     @Lazy
     private final OAuth2Service oAuth2Service;
@@ -43,7 +45,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/api/v1/book/**", "/api/v1/cart/**",
                                 "/api/v1/user/**",
@@ -74,6 +76,22 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .build();
     }
+      @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:8080",
+                "https://online-book-shop-client.onrender.com",
+                "http://localhost:3000"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
     private void oauth2AuthenticationSuccessHandler(HttpServletRequest request,
                                                     HttpServletResponse response,
                                                     Authentication authentication) throws IOException {
@@ -90,6 +108,7 @@ public class SecurityConfig {
         AuthenticationResponse authResponse = oAuth2Service.processOAuth2Authentication(userInfo);
 
         response.setContentType("application/json");
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.getWriter().write(new ObjectMapper().writeValueAsString(authResponse));
         response.setStatus(HttpServletResponse.SC_OK);
     }
