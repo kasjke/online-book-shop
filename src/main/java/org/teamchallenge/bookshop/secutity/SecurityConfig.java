@@ -1,8 +1,5 @@
 package org.teamchallenge.bookshop.secutity;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,31 +9,21 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.teamchallenge.bookshop.Oauth2.CustomOAuth2User;
-import org.teamchallenge.bookshop.Oauth2.CustomOAuth2UserService;
-import org.teamchallenge.bookshop.dto.OAuth2UserInfo;
-import org.teamchallenge.bookshop.model.request.AuthenticationResponse;
 import org.teamchallenge.bookshop.service.OAuth2Service;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.teamchallenge.bookshop.constants.ValidationConstants.AUTHENTICATION_FAILED;
-import static org.teamchallenge.bookshop.constants.ValidationConstants.UNAUTHORIZED;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomOAuth2UserService customOAuth2UserService;
     @Lazy
     private final OAuth2Service oAuth2Service;
     @Lazy
@@ -55,22 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                        )
-                        .permitAll()
-                        .failureHandler((request, response, exception) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write(AUTHENTICATION_FAILED);
-                        })
-                )
-//                .exceptionHandling(exceptionHandling -> exceptionHandling
-//                        .authenticationEntryPoint((request, response, authException) -> {
-//                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//                            response.getWriter().write(UNAUTHORIZED);
-//                        })
-//                )
+
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider)
@@ -95,24 +67,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-//    private void oauth2AuthenticationSuccessHandler(HttpServletRequest request,
-//                                                    HttpServletResponse response,
-//                                                    Authentication authentication) throws IOException {
-//
-//        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-//        OAuth2UserInfo userInfo = new OAuth2UserInfo();
-//        userInfo.setSurname(oAuth2User.getSurname());
-//        userInfo.setName(oAuth2User.getName());
-//        userInfo.setEmail(oAuth2User.getEmail());
-//        userInfo.setProvider(oAuth2User.getProvider());
-//        String providerId = (String) oAuth2User.getAttributes().get("sub");
-//        userInfo.setProviderId(providerId);
-//
-//        AuthenticationResponse authResponse = oAuth2Service.processOAuth2Authentication(userInfo);
-//
-//        response.setContentType("application/json");
-//        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-//        response.getWriter().write(new ObjectMapper().writeValueAsString(authResponse));
-//        response.setStatus(HttpServletResponse.SC_OK);
-//    }
 }
