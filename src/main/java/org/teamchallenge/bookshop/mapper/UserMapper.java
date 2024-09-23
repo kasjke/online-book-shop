@@ -20,6 +20,7 @@ public interface UserMapper {
     void updateUserFromProfileDto(ProfileUpdateDto profileUpdateDto, @MappingTarget User user);
 
     User toEntity(UserTestDto userTestDto);
+    UserTestDto userToTestDto(User user);
     UserTestDto toDto(User user);
     @Mapping(target = "id", ignore = true)
     void updateUserFromDto(UserDto userDto, @MappingTarget User user);

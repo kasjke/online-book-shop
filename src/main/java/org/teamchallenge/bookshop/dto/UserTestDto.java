@@ -7,6 +7,7 @@ import org.teamchallenge.bookshop.enums.Role;
 @Getter
 @Setter
 public class UserTestDto {
+    private long id;
     private String name;
     private String surname;
     private String email;

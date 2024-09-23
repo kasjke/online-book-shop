@@ -6,8 +6,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.util.StringUtils;
 import org.teamchallenge.bookshop.exception.SecretKeyNotFoundException;
 import org.teamchallenge.bookshop.exception.UserNotFoundException;
@@ -65,7 +67,6 @@ public class JwtService {
         }
         claims.put("email", user.getEmail());
         claims.put("role", user.getRole().name());
-
         return Jwts.builder()
                 .claims(claims)
                 .subject(getUserIdentifier(user))

@@ -25,6 +25,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
+
+
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
@@ -34,8 +36,11 @@ public class CartServiceImpl implements CartService {
     private final CartMapper cartMapper;
     private final BookMapper bookMapper;
 
+
+
 @Override
     public CartItemsResponseDto getCartItems() {
+
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(CartNotFoundException::new);
@@ -43,14 +48,12 @@ public class CartServiceImpl implements CartService {
         List<CartItemDto> items = cart.getItems().entrySet().stream()
                 .map(entry -> bookMapper.bookToCartItemDto(entry.getKey(), entry.getValue()))
                 .toList();
-
         BigDecimal totalPrice = cart.getItems().entrySet().stream()
                 .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new CartItemsResponseDto(items, totalPrice);
     }
-
 
     @Override
     public CartDto getCartByUser() {
