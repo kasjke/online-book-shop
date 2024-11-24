@@ -11,7 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
-import org.teamchallenge.bookshop.repository.UserRepository;
+
 import org.teamchallenge.bookshop.service.SendMailService;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class SendMailServiceImpl implements SendMailService {
             Pattern.compile(EMAIL_REGEXP, Pattern.CASE_INSENSITIVE);
 
     @Autowired
-    public SendMailServiceImpl(JavaMailSender javaMailSender, UserRepository userRepository) {
+    public SendMailServiceImpl(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
