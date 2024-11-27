@@ -1,6 +1,7 @@
 package org.teamchallenge.bookshop.service.Impl;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final SendMailService sendMailService;
 
     @Override
+    @Transactional
     public AuthenticationResponse register(RegisterRequest registerRequest) {
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException();
@@ -58,7 +60,13 @@ public class AuthServiceImpl implements AuthService {
         sendMailService.sendSuccessRegistrationEmail(registerRequest.getEmail());
 
         String accessToken = jwtService.generateAccessToken(user);
+        if (accessToken == null) {
+            throw new IllegalStateException("Access token generation failed");
+        }
         String refreshToken = jwtService.generateRefreshToken(user);
+        if (refreshToken == null) {
+            throw new IllegalStateException("Refresh token generation failed");
+        }
 
         jwtService.saveUserToken(user, accessToken);
 

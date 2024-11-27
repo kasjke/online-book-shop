@@ -49,4 +49,10 @@ public class User   {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Profile profile;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Token> tokens = new ArrayList<>();
+    public void addToken(Token token) {
+        tokens.add(token);
+        token.setUser(this);
+    }
 }

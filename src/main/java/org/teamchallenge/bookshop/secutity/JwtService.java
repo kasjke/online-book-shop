@@ -59,10 +59,11 @@ public class JwtService {
 
     private String buildToken(User user, long expiration) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
+        claims.put("surname", user.getSurname());
         if (user.getProviderId() != null) {
             claims.put("providerId", user.getProviderId());
         }
+
         claims.put("email", user.getEmail());
         claims.put("role", user.getRole().name());
         return Jwts.builder()
@@ -75,8 +76,15 @@ public class JwtService {
     }
 
     private String getUserIdentifier(User user) {
-        return user.getId() == 0 ? user.getProviderId() : String.valueOf(user.getId());
+        if (user.getId() > 0) {
+            return String.valueOf(user.getId());
+        } else if (user.getProviderId() != null) {
+            return user.getProviderId();
+        } else {
+            throw new IllegalStateException("Cannot determine user identifier.");
+        }
     }
+
 
     public Long extractUserId(String token) {
         Claims claims = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
@@ -94,6 +102,7 @@ public class JwtService {
                     );
         }
     }
+
     public boolean isTokenValid(String token) {
         try {
             Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token);
@@ -125,6 +134,10 @@ public class JwtService {
     }
 
     public void saveUserToken(User user, String jwtToken) {
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            throw new IllegalArgumentException("JWT Token cannot be null or empty");
+        }
+
         Token token = Token.builder()
                 .user(user)
                 .tokenValue(jwtToken)
@@ -132,8 +145,10 @@ public class JwtService {
                 .revoked(false)
                 .expiryDate(LocalDateTime.now().plusMinutes(15))
                 .build();
+
         tokenRepository.save(token);
     }
+
 
     public void revokeAllUserTokens(User user) {
         List<Token> validUserTokens = tokenRepository.findAllValidTokenByUser(user);
