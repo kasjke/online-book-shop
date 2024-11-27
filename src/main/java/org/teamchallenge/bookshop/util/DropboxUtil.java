@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DropboxUtil {
-    private static String ACCESS_TOKEN = System.getenv("DROPBOX_TOKEN");
+    private static String ACCESS_TOKEN = "";
     private static final String APP_KEY = System.getenv("APP_KEY");
     private static final String APP_SECRET = System.getenv("APP_SECRET");
     private static final String REFRESH_TOKEN = System.getenv("REFRESH_TOKEN");
@@ -28,7 +28,7 @@ public class DropboxUtil {
 
     public static DbxClientV2 getClient() throws DbxException {
         ensureAccessToken();
-        DbxRequestConfig config = DbxRequestConfig.newBuilder("tcl").build();
+        DbxRequestConfig config = DbxRequestConfig.newBuilder("OnlineBookShopDB").build();
         DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
         client = validateClient(client, config);
         return client;
