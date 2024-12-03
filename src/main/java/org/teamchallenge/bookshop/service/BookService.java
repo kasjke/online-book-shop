@@ -35,4 +35,6 @@ public interface BookService {
                             String author,
                             Float priceMin,
                             Float priceMax);
+
+    Page<BookCharacteristicDto> getBooksByCharacteristics(Pageable pageable, String publisher, String language, String bookType, String coverType);
 }

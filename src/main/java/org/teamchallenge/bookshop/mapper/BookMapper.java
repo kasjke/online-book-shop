@@ -37,27 +37,13 @@ public interface BookMapper {
         }
         throw new WrongEnumConstantException(ValidationConstants.WRONG_ENUM_CONSTANT);
     }
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "title", source = "title")
-    @Mapping(target = "full_description", source = "full_description")
-    @Mapping(target = "short_description", source = "short_description")
-    @Mapping(target = "price", source = "price")
-    @Mapping(target = "category", source = "category", qualifiedByName = "categoryToString")
-    @Mapping(target = "isThisSlider", source = "isThisSlider")
-    @Mapping(target = "titleImage", source = "titleImage")
-    @Mapping(target = "authors", source = "authors")
-    @Mapping(target = "timeAdded", source = "timeAdded")
-    @Mapping(target = "images", source = "images")
-    @Mapping(target = "quantity", source = "quantity")
-    @Mapping(target = "publisher", source = "characteristic.publisher")
-    @Mapping(target = "language", source = "characteristic.language")
-    @Mapping(target = "bookType", source = "characteristic.bookType")
-    @Mapping(target = "coverType", source = "characteristic.coverType")
+
+    @Mapping(target = "characteristicDto.publisher", source = "characteristic.publisher")
+    @Mapping(target = "characteristicDto.language", source = "characteristic.language")
+    @Mapping(target = "characteristicDto.bookType", source = "characteristic.bookType")
+    @Mapping(target = "characteristicDto.coverType", source = "characteristic.coverType")
     BookCharacteristicDto entityToBookCharacteristicDto(Book book);
-    @Mapping(target = "id", source = "book.id")
-    @Mapping(target = "title", source = "book.title")
-    @Mapping(target = "quantity", source = "quantity")
-    @Mapping(target = "price", source = "book.price")
+
     CartItemDto bookToCartItemDto(Book book, int quantity);
 
 

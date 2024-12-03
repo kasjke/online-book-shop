@@ -43,6 +43,17 @@ public class BookServiceImpl implements BookService {
     EntityManager entityManager;
 
     @Override
+    public Page<BookCharacteristicDto> getBooksByCharacteristics(Pageable pageable,
+                                                                 String publisher,
+                                                                 String language,
+                                                                 String bookType,
+                                                                 String coverType) {
+        Page<Book> books = bookRepository.findBooksByCharacteristics(
+                publisher, language, bookType, coverType, pageable);
+
+        return books.map(bookMapper::entityToBookCharacteristicDto);
+    }
+    @Override
     public void addBook(BookDto bookDto) {
         Book book = bookMapper.dtoToEntity(bookDto);
         String folderName = "/" + UUID.randomUUID();

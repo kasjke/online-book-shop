@@ -118,7 +118,7 @@ public class BookController {
                     )
             }
     )
-    @GetMapping("/filter")
+        @GetMapping("/filter")
     public ResponseEntity<Page<BookDto>> getFilteredBooks(
          @Parameter(description = "Number of page and it's size", example = "{\n \"size\" : 10,\n\"page\" : 0\n}")
          Pageable pageable,
@@ -139,6 +139,25 @@ public class BookController {
         return ResponseEntity.ok(bookDtos);
     }
 
+
+        @GetMapping("/filter-by-characteristics")
+        public ResponseEntity<Page<BookCharacteristicDto>> getBooksByCharacteristics(
+                Pageable pageable,
+                @RequestParam(required = false) String publisher,
+                @RequestParam(required = false) String language,
+                @RequestParam(required = false) String bookType,
+                @RequestParam(required = false) String coverType) {
+
+            Page<BookCharacteristicDto> books = bookService.getBooksByCharacteristics(pageable, publisher, language, bookType, coverType);
+            return ResponseEntity.ok(books);
+        }
+
+    @Operation(summary = "Remove book", description = "Deletes a book by its ID.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
+    }
     @Operation(summary = "Get books for slider")
     @GetMapping("/slider")
     public ResponseEntity<List<BookInCatalogDto>> getBooksForSlider() {

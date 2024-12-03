@@ -25,8 +25,5 @@ public class BookCharacteristicDto {
     private LocalDate timeAdded;
     private List<String> images;
     private int quantity ;
-    private String publisher;
-    private String language;
-    private String bookType;
-    private String coverType;
+    private CharacteristicDto characteristicDto;
 }

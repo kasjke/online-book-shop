@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DropboxUtil {
-    private static String ACCESS_TOKEN = "";
-    private static final String APP_KEY = System.getenv("APP_KEY");
-    private static final String APP_SECRET = System.getenv("APP_SECRET");
+    private static String ACCESS_TOKEN = "sl.B39PqmW-oT-u9YRcp-tbvcgTkiJk70PEUAYaH2M4EnXObGF3t-u8LuHwB7XXZfyjFZgrnRi2Bks8GHX5aD5fEiTZW8VkomH2a3UTtuvRRd2v1rmIstkWi0KQKjcoQ-UPiP6Lavss82n5Fmului66XXk";
+    private static final String APP_KEY = "7nmg0fdo6lp0kli";
+    private static final String APP_SECRET = "sqv1vlp9ucwe6q4";
     private static final String REFRESH_TOKEN = System.getenv("REFRESH_TOKEN");
     private static final String TOKEN_ENDPOINT = "https://api.dropbox.com/oauth2/token";
 
