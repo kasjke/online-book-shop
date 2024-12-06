@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -162,5 +163,12 @@ public class BookController {
     @GetMapping("/slider")
     public ResponseEntity<List<BookInCatalogDto>> getBooksForSlider() {
         return ResponseEntity.ok(bookService.getBooksForSlider());
+    }
+
+    @PostMapping("/add-with-character")
+    public ResponseEntity<BookCharacteristicDto> createBookWithCharacteristics(
+            @Valid @RequestBody BookCharacteristicDto bookCharacteristicDto) {
+        BookCharacteristicDto createdBook = bookService.createBookWithCharacteristics(bookCharacteristicDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
     }
 }

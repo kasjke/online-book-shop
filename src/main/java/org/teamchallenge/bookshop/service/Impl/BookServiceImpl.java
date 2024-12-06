@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -53,6 +54,55 @@ public class BookServiceImpl implements BookService {
 
         return books.map(bookMapper::entityToBookCharacteristicDto);
     }
+
+    @Override
+    @Transactional
+    public BookCharacteristicDto createBookWithCharacteristics(BookCharacteristicDto bookCharacteristicDto) {
+        Book book = bookMapper.bookCharacteristicDtoToEntity(bookCharacteristicDto);
+        processBookImages(book, bookCharacteristicDto.getTitleImage(), bookCharacteristicDto.getImages());
+        Book savedBook = bookRepository.save(book);
+
+        return bookMapper.entityToBookCharacteristicDto(savedBook);
+    }
+
+    private void processBookImages(Book book, String titleImageBase64, List<String> imagesBase64) {
+        String folderName = "/" + UUID.randomUUID();
+        try {
+            dropboxService.createFolder(folderName);
+        } catch (DropboxFolderCreationException e) {
+            throw new DropboxFolderCreationException();
+        }
+
+        try {
+            book.setTitleImage(dropboxService.uploadImage(
+                    folderName + "/title.png",
+                    ImageUtil.base64ToBufferedImage(titleImageBase64))
+            );
+        } catch (ImageUploadException e) {
+            throw new ImageUploadException("Error uploading title image");
+        }
+
+        AtomicInteger counter = new AtomicInteger(1);
+        List<String> links = new ArrayList<>();
+        if (imagesBase64 != null && !imagesBase64.isEmpty()) {
+            List<CompletableFuture<String>> imageFutures = imagesBase64.stream()
+                    .map(image -> CompletableFuture.supplyAsync(() -> dropboxService.uploadImage(
+                            folderName + "/" + counter.getAndIncrement() + ".png",
+                            ImageUtil.base64ToBufferedImage(image)
+                    )))
+                    .toList();
+
+            imageFutures.forEach(future -> {
+                try {
+                    links.add(future.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException("Error uploading additional images", e);
+                }
+            });
+        }
+        book.setImages(links);
+    }
+
     @Override
     public void addBook(BookDto bookDto) {
         Book book = bookMapper.dtoToEntity(bookDto);

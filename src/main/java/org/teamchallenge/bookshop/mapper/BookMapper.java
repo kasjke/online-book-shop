@@ -46,6 +46,12 @@ public interface BookMapper {
 
     CartItemDto bookToCartItemDto(Book book, int quantity);
 
+    @Mapping(target = "characteristic.publisher", source = "characteristicDto.publisher")
+    @Mapping(target = "characteristic.language", source = "characteristicDto.language")
+    @Mapping(target = "characteristic.bookType", source = "characteristicDto.bookType")
+    @Mapping(target = "characteristic.coverType", source = "characteristicDto.coverType")
+    Book bookCharacteristicDtoToEntity(BookCharacteristicDto dto);
+
 
 
 }

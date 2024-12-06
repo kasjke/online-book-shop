@@ -37,4 +37,6 @@ public interface BookService {
                             Float priceMax);
 
     Page<BookCharacteristicDto> getBooksByCharacteristics(Pageable pageable, String publisher, String language, String bookType, String coverType);
+
+    BookCharacteristicDto createBookWithCharacteristics(BookCharacteristicDto bookCharacteristicDto);
 }
