@@ -1,7 +1,6 @@
 package org.teamchallenge.bookshop.dto;
 
 
-import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 
 import java.math.BigDecimal;

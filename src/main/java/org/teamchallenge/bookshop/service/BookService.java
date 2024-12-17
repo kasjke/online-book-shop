@@ -24,11 +24,11 @@ public interface BookService {
 
     void deleteBook(Long id);
 
-    Page<BookDto> getAllBooks(Pageable pageable);
+    Page<BookCharacteristicDto> getAllBooks(Pageable pageable);
 
     BookInCatalogDto getFirstBookByTitle(String title);
 
-    Page<BookDto> getSorted(Pageable pageable,
+    Page<BookCharacteristicDto> getSorted(Pageable pageable,
                             Integer categoryId,
                             String timeAdded,
                             String price,

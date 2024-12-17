@@ -196,7 +196,7 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(BookNotFoundException::new);
     }
 
-    public Page<BookDto> getAllBooks(Pageable pageable) {
+    public Page<BookCharacteristicDto> getAllBooks(Pageable pageable) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> query = criteriaBuilder.createQuery(Book.class);
         Root<Book> root = query.from(Book.class);
@@ -207,8 +207,8 @@ public class BookServiceImpl implements BookService {
         typedQuery.setFirstResult((int) pageable.getOffset());
         typedQuery.setMaxResults(pageable.getPageSize());
         List<Book> bookList = typedQuery.getResultList();
-        List<BookDto> bookDtoList = bookList.stream()
-                .map(bookMapper::entityToDTO)
+        List<BookCharacteristicDto> bookDtoList = bookList.stream()
+                .map(bookMapper::entityToBookCharacteristicDto)
                 .toList();
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
         Root<Book> countRoot = countQuery.from(Book.class);
@@ -219,7 +219,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Page<BookDto> getSorted(Pageable pageable,
+    public Page<BookCharacteristicDto> getSorted(Pageable pageable,
                                    Integer categoryId,
                                    String timeAdded,
                                    String price,
@@ -254,8 +254,8 @@ public class BookServiceImpl implements BookService {
         typedQuery.setFirstResult((int) pageable.getOffset());
         typedQuery.setMaxResults(pageable.getPageSize());
         List<Book> bookList = typedQuery.getResultList();
-        List<BookDto> bookDtoList = bookList.stream()
-                .map(bookMapper::entityToDTO)
+        List<BookCharacteristicDto> bookDtoList = bookList.stream()
+                .map(bookMapper::entityToBookCharacteristicDto)
                 .toList();
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
         Root<Book> countRoot = countQuery.from(Book.class);

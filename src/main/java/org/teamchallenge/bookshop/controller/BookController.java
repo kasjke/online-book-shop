@@ -94,7 +94,7 @@ public class BookController {
             }
     )
     @GetMapping("/all")
-    public ResponseEntity<Page<BookDto>> getAllBooks(
+    public ResponseEntity<Page<BookCharacteristicDto>> getAllBooks(
             @Parameter(description = "Number of page and it's size", example = "{\n \"size\" : 10,\n\"page\" : 0\n}")
             Pageable pageable
     ) {
@@ -120,7 +120,7 @@ public class BookController {
             }
     )
         @GetMapping("/filter")
-    public ResponseEntity<Page<BookDto>> getFilteredBooks(
+    public ResponseEntity<Page<BookCharacteristicDto>> getFilteredBooks(
          @Parameter(description = "Number of page and it's size", example = "{\n \"size\" : 10,\n\"page\" : 0\n}")
          Pageable pageable,
          @Parameter(description = "Category id")
@@ -136,7 +136,7 @@ public class BookController {
          @Parameter(description = "Maximum of price value")
          @RequestParam(required = false) Float price_max
     ) {
-        Page<BookDto> bookDtos = bookService.getSorted(pageable, category, time_added, price, author, price_min, price_max);
+        Page<BookCharacteristicDto> bookDtos = bookService.getSorted(pageable, category, time_added, price, author, price_min, price_max);
         return ResponseEntity.ok(bookDtos);
     }
 
