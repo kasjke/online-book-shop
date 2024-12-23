@@ -186,7 +186,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<CategoryDto> getAllCategory() {
         return Arrays.stream(Category.values())
-                .map(category -> new CategoryDto(category.getId(), category.getName()))
+                .map(category -> new CategoryDto(category.getId(),category.name(), category.getName()))
                 .toList();
     }
 

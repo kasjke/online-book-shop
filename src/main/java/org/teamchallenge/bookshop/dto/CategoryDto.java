@@ -1,4 +1,4 @@
 package org.teamchallenge.bookshop.dto;
 
-public record CategoryDto(int id, String name) {
+public record CategoryDto(int id, String name,String ukrName) {
 }
