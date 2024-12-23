@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
 import org.teamchallenge.bookshop.dto.BookDto;
@@ -63,6 +64,16 @@ public class BookServiceImpl implements BookService {
         Book savedBook = bookRepository.save(book);
 
         return bookMapper.entityToBookCharacteristicDto(savedBook);
+    }
+
+    @Override
+    public BookCharacteristicDto update(Long id, BookCharacteristicDto bookCharacteristicDto) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(BookNotFoundException::new);
+        bookMapper.updateUserFromDto(bookCharacteristicDto, book);
+        Book updatedUserEntity = bookRepository.save(book);
+
+        return bookMapper.entityToBookCharacteristicDto(updatedUserEntity);
     }
 
     private void processBookImages(Book book, String titleImageBase64, List<String> imagesBase64) {

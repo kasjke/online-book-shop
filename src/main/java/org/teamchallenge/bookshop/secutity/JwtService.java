@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.teamchallenge.bookshop.exception.InvalidTokenException;
 import org.teamchallenge.bookshop.exception.SecretKeyNotFoundException;
 import org.teamchallenge.bookshop.exception.UserNotFoundException;
 import org.teamchallenge.bookshop.model.Token;
@@ -135,7 +136,7 @@ public class JwtService {
 
     public void saveUserToken(User user, String jwtToken) {
         if (jwtToken == null || jwtToken.isEmpty()) {
-            throw new IllegalArgumentException("JWT Token cannot be null or empty");
+            throw new InvalidTokenException();
         }
 
         Token token = Token.builder()

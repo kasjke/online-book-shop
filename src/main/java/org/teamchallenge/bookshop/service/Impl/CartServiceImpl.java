@@ -62,7 +62,7 @@ public class CartServiceImpl implements CartService {
         return cartMapper.entityToDto(cart);
     }
 
-
+    @Transactional
     public CartItemsResponseDto  addBookToCart(long bookId) {
         User user = userService.getAuthenticatedUser();
         Cart cart = cartRepository.findById(user.getCart().getId())

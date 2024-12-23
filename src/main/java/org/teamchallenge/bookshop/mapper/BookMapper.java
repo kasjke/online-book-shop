@@ -2,6 +2,7 @@ package org.teamchallenge.bookshop.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.teamchallenge.bookshop.constants.ValidationConstants;
 import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
@@ -12,7 +13,10 @@ import org.teamchallenge.bookshop.enums.Category;
 import org.teamchallenge.bookshop.exception.WrongEnumConstantException;
 import org.teamchallenge.bookshop.model.Book;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        config = MapperConfiguration.class,
+        componentModel = "spring"
+)
 public interface BookMapper {
     @Mapping(target = "category", source = "category", qualifiedByName = "categoryToString")
     BookDto entityToDTO(Book book);
@@ -52,6 +56,6 @@ public interface BookMapper {
     @Mapping(target = "characteristic.coverType", source = "characteristicDto.coverType")
     Book bookCharacteristicDtoToEntity(BookCharacteristicDto dto);
 
-
-
+    @Mapping(target = "id", ignore = true)
+    void updateUserFromDto(BookCharacteristicDto bookCharacteristicDto, @MappingTarget Book book);
 }

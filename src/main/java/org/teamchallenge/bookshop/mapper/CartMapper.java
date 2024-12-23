@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = {BookMapper.class})
+@Mapper(componentModel = "spring", uses = {BookMapper.class}, config = MapperConfiguration.class)
 public interface CartMapper {
 
     @Mapping(target = "items", source = "items", qualifiedByName = "mapToList")

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.teamchallenge.bookshop.enums.TokenValidationResult;
 import org.teamchallenge.bookshop.exception.InvalidTokenException;
+import org.teamchallenge.bookshop.exception.OldPasswordMatchException;
 import org.teamchallenge.bookshop.exception.UserNotFoundException;
 import org.teamchallenge.bookshop.model.PasswordResetToken;
 import org.teamchallenge.bookshop.model.User;
@@ -61,6 +62,9 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         User user = getUserByPasswordResetToken(token)
                 .orElseThrow(UserNotFoundException::new);
 
+        if(passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new OldPasswordMatchException();
+        }
         changeUserPassword(user, newPassword);
         passwordTokenRepository.deleteByToken(token);
     }

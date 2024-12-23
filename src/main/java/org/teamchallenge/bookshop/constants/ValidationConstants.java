@@ -44,4 +44,5 @@ public interface ValidationConstants {
     String REFRESH_TOKEN_NOT_FOUND = "Refresh token not found";
     String AUTHENTICATION_FAILED = "Authentication failed";
     String UNAUTHORIZED = "Unauthorized";
+    String NEW_PASSWORD_CANNOT_BE_OLD_PASSWORD = "Your new password cannot be your old password.";
 }
