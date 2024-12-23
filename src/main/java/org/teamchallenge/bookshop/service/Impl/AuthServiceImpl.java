@@ -92,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         jwtService.revokeAllUserTokens(user);
-        jwtService.saveUserToken(user, accessToken);
+        jwtService.saveUserToken(user, refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)

@@ -140,6 +140,11 @@ public class BookController {
         return ResponseEntity.ok(bookDtos);
     }
 
+    @Operation(description = "Update book method")
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookCharacteristicDto> update(@PathVariable Long id, @Valid @RequestBody BookCharacteristicDto bookCharacteristicDto) {
+        return ResponseEntity.ok(bookService.update(id, bookCharacteristicDto));
+    }
 
         @GetMapping("/filter-by-characteristics")
         public ResponseEntity<Page<BookCharacteristicDto>> getBooksByCharacteristics(

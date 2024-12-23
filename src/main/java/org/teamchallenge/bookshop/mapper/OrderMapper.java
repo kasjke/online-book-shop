@@ -12,7 +12,7 @@ import org.teamchallenge.bookshop.model.Order;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Mapper(config = MapperConfig.class)
+@Mapper(config = MapperConfiguration.class)
 public interface OrderMapper {
 
     @Mapping(target = "books", source = "books", qualifiedByName = "mapBooksToBookIds")

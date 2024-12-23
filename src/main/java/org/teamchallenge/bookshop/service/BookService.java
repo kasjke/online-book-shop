@@ -2,6 +2,7 @@ package org.teamchallenge.bookshop.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
 import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.BookInCatalogDto;
@@ -39,4 +40,6 @@ public interface BookService {
     Page<BookCharacteristicDto> getBooksByCharacteristics(Pageable pageable, String publisher, String language, String bookType, String coverType);
 
     BookCharacteristicDto createBookWithCharacteristics(BookCharacteristicDto bookCharacteristicDto);
+
+   BookCharacteristicDto update(Long id, BookCharacteristicDto bookCharacteristicDto);
 }
