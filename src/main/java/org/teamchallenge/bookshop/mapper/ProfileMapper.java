@@ -5,7 +5,7 @@ import org.teamchallenge.bookshop.dto.ProfileUpdateDto;
 import org.teamchallenge.bookshop.model.Profile;
 import org.teamchallenge.bookshop.model.User;
 
-@Mapper(config = MapperConfig.class)
+@Mapper(config = MapperConfiguration.class)
 public interface ProfileMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

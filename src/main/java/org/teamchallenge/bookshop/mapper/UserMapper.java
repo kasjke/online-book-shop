@@ -9,7 +9,7 @@ import org.teamchallenge.bookshop.dto.UserDto;
 import org.teamchallenge.bookshop.dto.UserTestDto;
 import org.teamchallenge.bookshop.model.User;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring",config = MapperConfiguration.class)
 public interface UserMapper {
     UserDto entityToDto(User user);
 
