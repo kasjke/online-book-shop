@@ -119,5 +119,9 @@ public class ExceptionController {
     public ResponseEntity<ErrorObject> handleSuccessResponse(PaymentNotFoundException e) {
         return handleException(e, PAYMENT_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(OldPasswordMatchException.class)
+    public ResponseEntity<ErrorObject> handleOldPasswordMatchException(OldPasswordMatchException e) {
+        return handleException(e, NEW_PASSWORD_CANNOT_BE_OLD_PASSWORD, HttpStatus.BAD_REQUEST);
+    }
 
 }
