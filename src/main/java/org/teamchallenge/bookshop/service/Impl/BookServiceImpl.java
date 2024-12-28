@@ -107,7 +107,7 @@ public class BookServiceImpl implements BookService {
                 try {
                     links.add(future.get());
                 } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException("Error uploading additional images", e);
+                    throw new RuntimeException(e);
                 }
             });
         }
@@ -117,45 +117,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public void addBook(BookDto bookDto) {
         Book book = bookMapper.dtoToEntity(bookDto);
-        String folderName = "/" + UUID.randomUUID();
-        try {
-            dropboxService.createFolder(folderName);
-        } catch (DropboxFolderCreationException e) {
-            throw new DropboxFolderCreationException();
-        }
-
-        try {
-            book.setTitleImage(dropboxService.uploadImage(
-                    folderName + "/title.png",
-                    ImageUtil.base64ToBufferedImage(bookDto.getTitleImage()))
-            );
-        } catch (ImageUploadException e) {
-            throw new ImageUploadException();
-        }
-
-        AtomicInteger counter = new AtomicInteger(1);
-        List<String> images = bookDto.getImages();
-        List<String> links = new ArrayList<>();
-        if (images != null && !images.isEmpty()) {
-            List<CompletableFuture<String>> imageList = images.stream()
-                    .map(image -> CompletableFuture
-                            .supplyAsync(() -> dropboxService.uploadImage(
-                                    folderName + "/" +counter.getAndIncrement() + ".png",
-                                    ImageUtil.base64ToBufferedImage(image)
-                            ))
-                    )
-                    .toList();
-            imageList.forEach(future -> {
-                try {
-                    links.add(future.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-        book.setImages(links);
+        processBookImages(book, bookDto.getTitleImage(), bookDto.getImages());
         bookRepository.save(book);
     }
+
     @Override
     public BookCharacteristicDto getBookById(Long id) {
         Book book = bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
