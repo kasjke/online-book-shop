@@ -1,5 +1,7 @@
 package org.teamchallenge.bookshop.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
 import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.BookInCatalogDto;
@@ -32,13 +35,23 @@ import java.util.List;
 @Tag(name = "Book controller", description = "API for book management")
 public class BookController {
     private final BookService bookService;
+    private final ObjectMapper objectMapper;
 
     @Operation(summary = "Add a new book")
     //TODO: add @Preauthorize
-    @PostMapping("/add")
-    public ResponseEntity<Void> addBook(@RequestBody BookDto bookDto ) {
-        bookService.addBook(bookDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    @PostMapping("/addBook")
+    public ResponseEntity<String> addBook(
+            @RequestParam("bookDto") String bookDtoString,
+            @RequestParam("titleImage") MultipartFile titleImageFile
+    ) {
+        BookDto bookDto;
+        try {
+            bookDto = objectMapper.readValue(bookDtoString, BookDto.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Invalid JSON format for bookDto", e);
+        }
+
+        return ResponseEntity.ok(bookService.addBook(bookDto, titleImageFile));
     }
 
     @Operation(

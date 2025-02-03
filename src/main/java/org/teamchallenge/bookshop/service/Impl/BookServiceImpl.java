@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
 import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.BookInCatalogDto;
@@ -26,10 +27,8 @@ import org.teamchallenge.bookshop.service.BookService;
 import org.teamchallenge.bookshop.service.DropboxService;
 import org.teamchallenge.bookshop.util.ImageUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,7 +59,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public BookCharacteristicDto createBookWithCharacteristics(BookCharacteristicDto bookCharacteristicDto) {
         Book book = bookMapper.bookCharacteristicDtoToEntity(bookCharacteristicDto);
-        processBookImages(book, bookCharacteristicDto.getTitleImage(), bookCharacteristicDto.getImages());
+//        processBookImages(book, bookCharacteristicDto.getTitleImage(), bookCharacteristicDto.getImages());
         Book savedBook = bookRepository.save(book);
 
         return bookMapper.entityToBookCharacteristicDto(savedBook);
@@ -76,49 +75,88 @@ public class BookServiceImpl implements BookService {
         return bookMapper.entityToBookCharacteristicDto(updatedUserEntity);
     }
 
-    private void processBookImages(Book book, String titleImageBase64, List<String> imagesBase64) {
-        String folderName = "/" + UUID.randomUUID();
-        try {
-            dropboxService.createFolder(folderName);
-        } catch (DropboxFolderCreationException e) {
-            throw new DropboxFolderCreationException();
-        }
-
-        try {
-            book.setTitleImage(dropboxService.uploadImage(
-                    folderName + "/title.png",
-                    ImageUtil.base64ToBufferedImage(titleImageBase64))
-            );
-        } catch (ImageUploadException e) {
-            throw new ImageUploadException("Error uploading title image");
-        }
-
-        AtomicInteger counter = new AtomicInteger(1);
-        List<String> links = new ArrayList<>();
-        if (imagesBase64 != null && !imagesBase64.isEmpty()) {
-            List<CompletableFuture<String>> imageFutures = imagesBase64.stream()
-                    .map(image -> CompletableFuture.supplyAsync(() -> dropboxService.uploadImage(
-                            folderName + "/" + counter.getAndIncrement() + ".png",
-                            ImageUtil.base64ToBufferedImage(image)
-                    )))
-                    .toList();
-
-            imageFutures.forEach(future -> {
-                try {
-                    links.add(future.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-        book.setImages(links);
-    }
-
     @Override
-    public void addBook(BookDto bookDto) {
+    public String addBook(BookDto bookDto, MultipartFile titleImageFile) {
+        if (titleImageFile == null || titleImageFile.isEmpty()) {
+            throw new IllegalArgumentException("Title image file is null or empty");
+        }
+
         Book book = bookMapper.dtoToEntity(bookDto);
-        processBookImages(book, bookDto.getTitleImage(), bookDto.getImages());
+
+        String folderName = "/" + UUID.randomUUID();
+        dropboxService.createFolder(folderName);
+
+        String titleImageLink = dropboxService.uploadImage(
+                folderName + "/title.png",
+                titleImageFile
+        );
+        book.setTitleImage(titleImageLink);
+
+        if (bookDto.getImages() != null && !bookDto.getImages().isEmpty()) {
+            AtomicInteger counter = new AtomicInteger(1);
+            List<String> imageLinks = bookDto.getImages().stream()
+                    .map(imageBase64 -> {
+                        try {
+                            return dropboxService.uploadImage(
+                                    folderName + "/" + counter.getAndIncrement() + ".png",
+                                    ImageUtil.base64ToMultipartFile(imageBase64)
+                            );
+                        } catch (Exception e) {
+                            throw new RuntimeException("Error uploading additional image", e);
+                        }
+                    })
+                    .toList();
+            book.setImages(imageLinks);
+        }
+
         bookRepository.save(book);
+        return titleImageLink;
+    }
+//
+//    private String processBookImages(Book book, String titleImageBase64, List<String> imagesBase64) {
+//        String folderName = "/" + UUID.randomUUID();
+//
+//        try {
+//            dropboxService.createFolder(folderName);
+//        } catch (DropboxFolderCreationException e) {
+//            throw new RuntimeException("Error creating Dropbox folder", e);
+//        }
+//
+//        try {
+//            book.setTitleImage(dropboxService.uploadImage(
+//                    folderName + "/title.png",
+//                    ImageUtil.base64ToBufferedImage(titleImageBase64))
+//            );
+//        } catch (ImageUploadException e) {
+//            throw new RuntimeException("Error uploading title image", e);
+//        }
+//
+//        if (imagesBase64 != null && !imagesBase64.isEmpty()) {
+//            AtomicInteger counter = new AtomicInteger(1);
+//            List<String> links = imagesBase64.stream()
+//                    .map(image -> {
+//                        try {
+//                            return dropboxService.uploadImage(
+//                                    folderName + "/" + counter.getAndIncrement() + ".png",
+//                                    ImageUtil.base64ToBufferedImage(image)
+//                            );
+//                        } catch (ImageUploadException e) {
+//                            throw new RuntimeException("Error uploading additional image", e);
+//                        }
+//                    })
+//                    .toList();
+//
+//            book.setImages(links);
+//        }
+//        return book.getTitleImage();
+//    }
+
+
+    private String encodeToBase64(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Provided file is null or empty");
+        }
+        return Base64.getEncoder().encodeToString(file.getBytes());
     }
 
     @Override

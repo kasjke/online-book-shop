@@ -3,6 +3,7 @@ package org.teamchallenge.bookshop.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 import org.teamchallenge.bookshop.dto.BookCharacteristicDto;
 import org.teamchallenge.bookshop.dto.BookDto;
 import org.teamchallenge.bookshop.dto.BookInCatalogDto;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public interface BookService {
 
-    void addBook(BookDto book);
+    String addBook(BookDto bookDto, MultipartFile titleImageFile);
 
     BookCharacteristicDto getBookById(Long id);
 

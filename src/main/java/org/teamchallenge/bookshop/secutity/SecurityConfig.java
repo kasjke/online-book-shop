@@ -53,6 +53,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:8080",
+                "https://online-book-shop-ivip.onrender.com/",
                 "https://online-book-shop-client.onrender.com",
                 "http://localhost:3000",
                 "https://online-book-shop-1.onrender.com",

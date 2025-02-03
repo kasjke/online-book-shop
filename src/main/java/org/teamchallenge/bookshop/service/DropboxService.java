@@ -1,10 +1,13 @@
 package org.teamchallenge.bookshop.service;
 
-import java.awt.image.BufferedImage;
+
+import org.springframework.web.multipart.MultipartFile;
+
+
 
 
 public interface DropboxService {
     void createFolder(String path);
 
-    String uploadImage(String path, BufferedImage bufferedImage);
+     String uploadImage(String path, MultipartFile file);
 }
